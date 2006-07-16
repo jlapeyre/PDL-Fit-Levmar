@@ -1,0 +1,10 @@
+0.008
+GJL 16-Jul-2006
+ - Changes since .007. Added FIXB option. (and a couple of tests for it to levmar.t)
+ - Tried to improve documentation.
+
+0.002
+GJL 5-Jul-2006
+ - levmar.pd: made levmar() threading aware.
+ - t/liblevmar.t: changed to agree with the new inteface required by threading.
+
