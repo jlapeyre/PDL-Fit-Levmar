@@ -1,3 +1,9 @@
+0.0081
+GJL  17-Jul-2006
+ - More cleaning of documentation.
+ - Removed -lg2c from Makefile.PL. It is apparantly not needed (with
+   recent versions of gcc at least.)
+
 0.008
 GJL 16-Jul-2006
  - Changes since .007. Added FIXB option. (and a couple of tests for it to levmar.t)

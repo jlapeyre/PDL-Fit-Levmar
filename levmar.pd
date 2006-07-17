@@ -38,12 +38,7 @@ F<./doc/levmar.pdf> by the author of liblevmar describing
 the fit algorithms. Additional information on liblevmar is available at
 L<http://www.ics.forth.gr/~lourakis/levmar/>
 
-Don't confuse this module with, but see also,  PDL::Fit::LM.
-
-For now, this documentation consists mainly of
-examples. This module is being tested, and should not be considered
-stable.
-
+Don't confuse this module with, but see also,  L<PDL::Fit::LM>.
 
 =head1 SYNOPSIS
 
@@ -69,9 +64,8 @@ with sample data.
  $n = 100;
  $t = 10 * (sequence($n)/$n -1/2);
  $x = 3 * exp(-$t*$t * .3  );
- $ip = pdl [ 1, 1 ]; # initial  parameter guesses
+ $p = pdl [ 1, 1 ]; # initial  parameter guesses
 
- $p = $ip->copy;
  $h = levmar($p,$x,$t, FUNC =>
           '   function
               x = p0 * exp( -t*t * p1);
@@ -300,9 +294,9 @@ This option is required (but it can be passed before the
 options hash without the key 'C<FUNC>' ) Currently, it can be
 any of the following, which are auto-detected.
 
- a string containing C<lpp> code
+ a string containing lpp code
  a string containing pure C code
- the filename of a file containing C<lpp> code (which must end in '.lpp' )
+ the filename of a file containing lpp code (which must end in '.lpp' )
  the filename of a file containing pure C code ( which must end in '.c' )
  a reference to perl code
  a reference to a previously created Levmar::Func object (which was
@@ -310,7 +304,7 @@ any of the following, which are auto-detected.
 
 If you are fitting a lot of data by doing many iterations over
 a loop of perl code, it is by far most efficient to create a Func
-object from C or C<lpp> code and pass it to levmar. (Implicit threading
+object from C or lpp code and pass it to levmar. (Implicit threading
 does not recompile code in any case.)
 
 Currently you can also pass pure C code via the option CSRC.
@@ -324,7 +318,7 @@ should leave C<JFUNC> undefined. See L<Perl_Subroutines>
 
 =item DERIVATIVE
 
-This take the value 'numeric' or 'analytic'. If it is
+This takes the value 'numeric' or 'analytic'. If it is
 set to 'analytic', but no analytic jacobian of the model
 function is supplied, then the numeric algorithms will be used
 anyway.
@@ -645,7 +639,7 @@ ways.
 
 =item lpp
 
-It is easier to learn to use C<lpp> by reading the L<EXAMPLES> section.
+It is easier to learn to use C<lpp> by reading the C<EXAMPLES> section.
 
 C<lpp> processes a function definition into C code.  It writes
 the opening and closing parts of the function, alters a
@@ -771,12 +765,14 @@ is used.
 
 =item Perl_Subroutines
 
-This is how to use perl subroutines as fit functions... (see the examples for
-now, e.g. L<example 2|/example--2>.)  The fit function takes piddles $p,$x, and $t,
-with dimensions m,n, and tn. (often tn ==n ).
-These are references with storage already allocated (by the user and liblevmar). So
-you must use C<.=> when setting values. The jacobian takes piddles $p,$d, and $t, where
-$d, the piddle of derivatives has dimensions (m,n). For example
+This is how to use perl subroutines as fit functions... (see
+the examples for now, e.g. L<example 2|/example--2>.)  The
+fit function takes piddles $p,$x, and $t, with dimensions
+m,n, and tn. (often tn ==n ).  These are references with
+storage already allocated (by the user and liblevmar). So
+you must use C<.=> when setting values. The jacobian takes
+piddles $p,$d, and $t, where $d, the piddle of derivatives
+has dimensions (m,n). For example
 
  $f = sub myexp {
     my ($p,$x,$t) = @_;
@@ -843,7 +839,7 @@ solution is not very clean.
 =item Efficiency
 
 Using C<lpp> or C is faster than using perl subs, which is
-faster than using Fit::LM, at least in all the tests I have
+faster than using L<PDL::Fit::LM>, at least in all the tests I have
 done. For very large data sets, pure C was twice as fast as
 perl subs and three times as fast as Fit::LM.  Some
 optimization problems have very small data sets and converge
@@ -1490,6 +1486,7 @@ sub levmar_chkjac {
 ===EOD===pm_code===
 
 =pod
+=begin comment
 
   The following provides an interface to 12 functions in
   liblevmar.  2 (float or double) * 2 (numeric or analytic)
@@ -1514,7 +1511,7 @@ sub levmar_chkjac {
   required storage. If you pass $work with >= the required storage,
   $work is not changed and everything is ok.
 
-
+=end comment
 =cut
 
 
@@ -1597,6 +1594,7 @@ sub levmar_chkjac {
     }
 
 =pod
+=begin comment
 
  /* 
   * Check the jacobian of a n-valued nonlinear function in m variables
@@ -1635,6 +1633,7 @@ sub levmar_chkjac {
   * other value which may cause loss of significance.
   */
 
+=end comment
 =cut
 
     pp_def('_levmar_chkjac', Pars => ' p(m); t(n); [o] err(n); ',
@@ -1679,11 +1678,13 @@ sub levmar_chkjac {
 
 
 =pod
+=begin comment
 
     No end of trouble cause by confusion over passing ints and chars
     and so forth. I am sticking with using ints for pointers for the
     time being.
 
+=end comment
 =cut
 
 
@@ -1737,6 +1738,7 @@ get_dbl_max(  )
 
 
 =pod
+=begin comment
 
   The next two routines just get pointers to functions from
   the C code and return them as SVs to perl. The functions
@@ -1746,6 +1748,7 @@ get_dbl_max(  )
   Levmar::Func module is loaded and can be shared by all
   object instances.
 
+=end comment
 =cut
 
 int

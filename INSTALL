@@ -7,6 +7,11 @@ called 'pdl'.
 If you manage to port this module to Win32, I'd like to hear
 about it, but I don't know how to do it.
 
+You may need to edit this line in Makefile.PL:
+  $hash{LIBS} = [ ' -lm  -llapack -lblas '];
+to give the proper flags to the linker regarding your lapack
+and blas libraries.
+
 For the most part, under a fairly standard linux installation,
 and  only if you have the dependencies (see below) installed...
 
@@ -39,9 +44,7 @@ libg2c0-dev GNU Fortran 77 library development
 lapack3-dev library of linear algebra routines 3 - static library
 refblas3-dev   Basic Linear Algebra Subroutines 3, static library
 
-These libraries are used in building upstream levmar library. There
-are other options for providing the lapack and blas routines. If you
-use these other libraries, you have to edit Makefile.PL
+These libraries are used in building upstream levmar library.
 
 
 

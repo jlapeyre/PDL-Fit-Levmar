@@ -4,15 +4,25 @@ use ExtUtils::MakeMaker;
 use Carp;
 PDL::Core::Dev->import();
 
-$VERSION = "0.008"; # Func/Makefile.PL relies on this!
+$VERSION = "0.0081"; # Func/Makefile.PL relies on this!
 
 $levmarsrc = "./levmar-2.1.3";
 $lmpackage = ["levmar.pd", Levmar, PDL::Fit::Levmar];
 %hash = pdlpp_stdargs($lmpackage);
 $hash{VERSION}  = $VERSION;
 $hash{INC} .= " -I $levmarsrc";
-$hash{LIBS} = [' -lm  -llapack -lblas -lg2c ' ];
-#$hash{LIBS} = [' -lm  -latlas -lcblas -lf77 ' ];
+
+# I spent a few hours trying to figure out how to automatically
+# determine how to link lapack and blas. But I had no luck
+
+$hash{LIBS} = [ ' -lm  -llapack -lblas '];
+
+# These are some other possibilities, eg if f2c (f77) was used to compile lapack
+#' -lm  -llapack -lblas -lf2c ',
+#	       ' -lm  -llapack -lblas -lF77 ', ' -lm  -llapack -lblas -lI77 ',
+#	       ' -llapack -lcblas -lf77blas -latlas -lf2c ',
+#               ' -llapack -lblas -latlas -lg2c  ' ];
+
 $hash{DIR} = [ 'Func' ];
 $hash{DEFINE} = " -DHAVE_LAPACK ";
 #$hash{OBJECT} .= ' levmar_driver$(OBJ_EXT) ';
@@ -22,9 +32,8 @@ foreach my $f (qw( lm Axb misc lmlec lmbc ) ){
 $hash{clean} = {FILES => $hash{clean}->{FILES} . " " . $hash{OBJECT} .
 		" *.o *.so  Levmar.html " };
 
-#$hash{OPTIMIZE} = " -O3 --unroll-loops "; # doubt that this helps
+#$hash{OPTIMIZE} = " -O3 --unroll-loops "; # doubt that this helps; from levmar src
 $hash{OPTIMIZE} = " -O2  ";
-#$hash{OPTIMIZE} = " -march=athlon64 -O3 -pipe -fomit-frame-pointer ";
 
 {
 # This should be done more elegantly

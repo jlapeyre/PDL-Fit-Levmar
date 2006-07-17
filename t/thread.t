@@ -264,6 +264,7 @@ print "1..18\n";
 print "# type double\n";
 $Type = double;
 
+#thread6();
 thread1();
 thread2();
 thread3();
