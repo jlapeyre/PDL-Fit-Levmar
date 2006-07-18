@@ -2,6 +2,7 @@ compare.pl
 doc/levmar.pdf
 example.pl
 example_stripped.pl
+examples/levmar_ex.pl
 Func/func.h
 Func/func.pd
 Func/getsymbol.c
@@ -9,6 +10,7 @@ Func/Makefile.PL
 Func/purepdlt.pl
 Func/t.disable/func.t.d
 INSTALL
+COPYING
 Changes
 levmar.pd
 levmar_ex.pl
@@ -53,4 +55,11 @@ t/keeprefs.t
 t/simple_gaussian.lpp
 t/syntax.t.d
 TODO
+debian
+debian/README.debian
+debian/changelog
+debian/control
+debian/copyright
+debian/rules
+debian/files
 META.yml                                 Module meta-data (added by MakeMaker)

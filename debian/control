@@ -1,0 +1,16 @@
+Source: libpdl-fit-levmar-perl
+Section: perl
+Priority: extra
+Maintainer: John Lapeyre <lapeyre@physics.arizona.edu>
+Standards-Version: 3.7.2
+Build-Depends: debhelper (>> 4.1), perl (>> 5.8), lapack3-dev, refblas3-dev
+
+Package: libpdl-fit-levmar-perl
+Architecture: any
+Depends: ${perl:Depends}, ${shlibs:Depends}, pdl (>> 2.4.2)
+Description: PDL (perl data language) module for Levenberg-Marquardt (LM) fitting.
+ a complete interface to the levmar library (in C) of LM
+ routines from PDL. The module provides a unified interface
+ to non-linear fitting that supports linear or box
+ constraints, single or double precision, and analytic or
+ numeric derivatives.

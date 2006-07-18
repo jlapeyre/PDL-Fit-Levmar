@@ -4,7 +4,7 @@ use ExtUtils::MakeMaker;
 use Carp;
 PDL::Core::Dev->import();
 
-$VERSION = "0.0081"; # Func/Makefile.PL relies on this!
+$VERSION = "0.0082"; # Func/Makefile.PL relies on this!
 
 $levmarsrc = "./levmar-2.1.3";
 $lmpackage = ["levmar.pd", Levmar, PDL::Fit::Levmar];

@@ -13,7 +13,7 @@ PDL::Fit::Levmar - Levenberg-Marquardt fit/optimization routines
 Levenberg-Marquardt routines for least-squares fit to
 functions non-linear in fit parameters.
 
-This module provides an interface to the non-linear fitting
+This module provides a L<PDL> interface to the non-linear fitting
 library levmar (written in C). Levmar is
 L<thread|/example--6> aware, provides support for analytic
 or finite difference derivatives (in case no analytic
@@ -1486,7 +1486,12 @@ sub levmar_chkjac {
 ===EOD===pm_code===
 
 =pod
+
 =begin comment
+
+  The following comments are not intended to appear in documentation.
+  But short of removing them, I find it impossible to keep them from
+  appearing in the documentation.
 
   The following provides an interface to 12 functions in
   liblevmar.  2 (float or double) * 2 (numeric or analytic)
@@ -1512,6 +1517,7 @@ sub levmar_chkjac {
   $work is not changed and everything is ok.
 
 =end comment
+
 =cut
 
 
@@ -1594,6 +1600,7 @@ sub levmar_chkjac {
     }
 
 =pod
+
 =begin comment
 
  /* 
@@ -1634,6 +1641,7 @@ sub levmar_chkjac {
   */
 
 =end comment
+
 =cut
 
     pp_def('_levmar_chkjac', Pars => ' p(m); t(n); [o] err(n); ',
@@ -1675,9 +1683,8 @@ sub levmar_chkjac {
            );
 
 
-
-
 =pod
+
 =begin comment
 
     No end of trouble cause by confusion over passing ints and chars
@@ -1685,6 +1692,7 @@ sub levmar_chkjac {
     time being.
 
 =end comment
+
 =cut
 
 
