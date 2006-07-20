@@ -1,3 +1,10 @@
+0.0083
+GJL  20-Jul-2006
+ - Fixed bug that prevented x and t from having different dimensions.
+   This allows multi-dimensional data where t represents the same data
+   for each of the co-ordinates axes. Added an example to the docs and
+   the test directory using this feature.
+
 0.0082
 GJL  18-Jul-2006
  - Added debian directory for building deb package.

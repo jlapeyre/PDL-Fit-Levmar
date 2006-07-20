@@ -52,6 +52,7 @@ t/thread.t
 t/interface.t
 t/chkjac.t
 t/keeprefs.t
+t/ndim.t
 t/simple_gaussian.lpp
 t/syntax.t.d
 TODO

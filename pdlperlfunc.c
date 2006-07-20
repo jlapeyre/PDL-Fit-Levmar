@@ -89,23 +89,29 @@ void DFP_set_perl_funcs ( DFP *dat, SV* perl_fit_func, SV* perl_jac_func ) {
 }
 */
 
-void DFP_create_pdls( DFP *dat, int data_type, int m, int n) {
+void DFP_create_pdls( DFP *dat, int data_type, int m, int n, int nt) {
 
   pdl *p_pdl, *x_pdl, *d_pdl, *t_pdl;
   SV  *p_sv, *x_sv, *d_sv, *t_sv;
   
   PDL_Long mf_dims[] = {m};
   int num_mf_dims = 1;
+
   PDL_Long mjac_dims[] = {m,n}; // for jacobian 'd' variable
   int num_mjac_dims = 2;
+
   PDL_Long n_dims[] = {n};
   int num_n_dims = 1;
+
+  PDL_Long nt_dims[] = {nt};
+  int num_nt_dims = 1;
+
 
   // create pdls, but with no data;
   p_pdl = pdl_wrap(NULL, data_type, mf_dims, num_mf_dims, delete_levmar_pdls, 0);
   d_pdl = pdl_wrap(NULL, data_type, mjac_dims, num_mjac_dims, delete_levmar_pdls, 0);
   x_pdl = pdl_wrap(NULL, data_type, n_dims, num_n_dims, delete_levmar_pdls, 0);
-  t_pdl = pdl_wrap(NULL, data_type, n_dims, num_n_dims, delete_levmar_pdls, 0);
+  t_pdl = pdl_wrap(NULL, data_type, nt_dims, num_nt_dims, delete_levmar_pdls, 0);
   
   p_sv = getref_pdl(p_pdl);
   d_sv = getref_pdl(d_pdl);
@@ -130,10 +136,15 @@ void DFP_create_pdls( DFP *dat, int data_type, int m, int n) {
   
 }
 
-// whether t is double or float or whatever should make do difference here
-void DFP_check(DFP **dat, int data_type, int m, int n, void *t ) {
+/* If dat is null then no DFP struct was created because we
+ * are using a C function and it will expect t as the last
+ * argument (and dat is passed as the last argument).  If
+ * dat is non-null, it will hold a struct with all the pdls
+ * and we must put t in its proper place.
+ */
+void DFP_check(DFP **dat, int data_type, int m, int n, int nt, void *t ) {
   if ( *dat != NULL) {
-    DFP_create_pdls( *dat, data_type, m, n);
+    DFP_create_pdls( *dat, data_type, m, n, nt);
     (*dat)->t_pdl->data = t;
   }
   else { // Pure C routine that don't need this wrapper, expect t as last arg

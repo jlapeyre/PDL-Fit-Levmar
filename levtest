@@ -8,7 +8,9 @@ my @tests = (
    't/interface.t',
    't/thread.t',
    't/chkjac.t',
-   't/keeprefs.t',	     
+   't/keeprefs.t',
+   't/ndim.t',
+
 );
 
 unlink "err.levtest";

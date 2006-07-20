@@ -38,12 +38,12 @@ binary-arch:	checkroot build
 
 	$(MAKE) pure_install PREFIX=$(prefix)
 	-rmdir -p $(prefix)/share/perl5
-	dh_installdocs README doc/*
+	dh_installdocs README
 	dh_installexamples examples/*
 	dh_installchangelogs Changes
-
 	dh_strip
 	dh_compress
+	dh_installdocs doc/*
 	dh_fixperms
 	dh_perl
 	dh_shlibdeps
