@@ -20,17 +20,17 @@
  * nchar  : must <=  number of bytes allocated for error_message,
  *  to avoid buffer overrun. This is only here to prevent overrun.
  */
-void _open_and_find (  char * lib_name, char * func_name, int * lib_handle ,
-		       int * func_pointer, char * error_message, int nchar ) {
+void _open_and_find (  char * lib_name, char * func_name, void ** lib_handle ,
+		       void ** func_pointer, char * error_message, int nchar ) {
   void * ret_lib;
   void * fp;
   const char *errmsg = NULL;
   ret_lib = dlopen( lib_name, RTLD_NOW);
-  * lib_handle = (int) ret_lib;
+  * lib_handle =  ret_lib;
   if ( ret_lib != NULL ) {
     fp =  dlsym( ret_lib, func_name);
     errmsg = dlerror();
-    *func_pointer = (int) fp;
+    *func_pointer =  fp;
   }
   else {
     errmsg = dlerror();
@@ -44,7 +44,7 @@ void _open_and_find (  char * lib_name, char * func_name, int * lib_handle ,
   }
 }
 
-void   _close_shared_object_file( int * lib_handle, int * rval, char * error_message, int nchar ) {
+void   _close_shared_object_file( void ** lib_handle, int * rval, char * error_message, int nchar ) {
   const char *errmsg = NULL;
   if ( *lib_handle != NULL ) *rval = dlclose( (void *) *lib_handle );
   errmsg = dlerror();

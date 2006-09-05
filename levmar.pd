@@ -13,7 +13,7 @@ PDL::Fit::Levmar - Levenberg-Marquardt fit/optimization routines
 Levenberg-Marquardt routines for least-squares fit to
 functions non-linear in fit parameters.
 
-This module provides a L<PDL> interface to the non-linear fitting
+This module provides a L<PDL> ( L<PDL::PDL> ) interface to the non-linear fitting
 library levmar (written in C). Levmar is
 L<thread|/example--6> aware, provides support for analytic
 or finite difference derivatives (in case no analytic
@@ -50,6 +50,10 @@ Don't confuse this module with, but see also,  L<PDL::Fit::LM>.
 
 
 =head1 EXAMPLES
+
+
+A number of examples of invocations of C<levmar> follow. The test
+directory C<./t> in the module distribution contains many more examples.
 
 =over 3
 
@@ -106,7 +110,8 @@ Next, we do the same fit, but with a perl/PDL fit function.
 
 Using perl code (second example) is slower than using pure C
 (first example). How much slower depends on the problem (see
-L</IMPLEMENTATION> below). 
+L</IMPLEMENTATION> below). See also the section on 
+L<perl subroutines|/Perl_Subroutines>.
 
 =item example--3
 
@@ -269,9 +274,9 @@ is the fit function.
 
 We would prefer a function that maps t(n,n) --> x(n,n) (with
 p viewed as parameters.) But the levmar library expects one
-dimensional x and t.  Thus, C<gauss2d> actually expects
-piddles with these dimensions, C<p(3)>, C<xin(n*n)>,
-C<t(n)>. For this example, we assume both the co-ordinate
+dimensional x and t. So we design C<gauss2d> to take
+piddles with these dimensions: C<p(3)>, C<xin(n*n)>,
+C<t(n)>. For this example, we assume that both the co-ordinate
 axes run over the same range, so we only need to pass n
 values for t. The piddles t1 and t2 are (virtual) copies of
 t with dummy dimensions inserted. Each represents
@@ -326,14 +331,14 @@ option in a key-value pair. If you prefer, you can pass some
 or all of  C<$p,$x,$t> and the function as key-values in the
 hash. Note that after the first key-value pair, you cannot
 pass any more non-hash arguments. The following calls are equivalent
-(where $string is a function defintion).
+(where $func specifies the function as described in L</FUNC> ).
 
- levmar($p, $x, $t, $string);
- levmar($string,$p, $x, $t);
- levmar($p, $x, $t, FUNC=> $string);
- levmar($p, $x, T=>$t, FUNC => $string);
- levmar($p, X=>$x, T=>$t, FUNC => $string);
- levmar(P=>$p, X=>$x, T=>$t, FUNC => $string);
+ levmar($p, $x, $t, $func);
+ levmar($func,$p, $x, $t);
+ levmar($p, $x, $t, FUNC=> $func);
+ levmar($p, $x, T=>$t, FUNC => $func);
+ levmar($p, X=>$x, T=>$t, FUNC => $func);
+ levmar(P=>$p, X=>$x, T=>$t, FUNC => $func);
 
 In the following, if the default value is not mentioned, it is undef.
 C<$outh> refers to the output hash.
@@ -343,7 +348,7 @@ C<$outh> refers to the output hash.
 =item FUNC
 
 This option is required (but it can be passed before the
-options hash without the key 'C<FUNC>' ) Currently, it can be
+options hash without the key C<FUNC> ) Currently, it can be
 any of the following, which are auto-detected.
 
  a string containing lpp code
@@ -366,7 +371,7 @@ Currently you can also pass pure C code via the option CSRC.
 This parameter is the jacobian as a ref to perl CODE. For
 C and C<lpp> code, the jacobian, if present, is always in the
 same source file as the fit function; in this case, you
-should leave C<JFUNC> undefined. See L<Perl_Subroutines>
+should leave C<JFUNC> undefined. See L</Perl_Subroutines>
 
 =item DERIVATIVE
 
@@ -406,9 +411,13 @@ use linear contstraints directly via C<A> and C<b>.
 =item FIXB
 
 This option is almost the same as FIX. It takes the same
-values with the same meanings. It fixes parameters, but uses
+values with the same meanings. It fixes parameters at the value
+of the input parameters, but uses
 box constraints, i.e., UB and LB rather than linear
-constraints A and B.
+constraints A and B. You can specify all three of UB,LB, and FIXB.
+In this case, first box constraints determined by UB and LB are applied
+Then, for those elements of FIXB with value one, the corresponding
+values of UB and LB are overridden.
 
 =item A
 
@@ -506,7 +515,7 @@ storage for $work on a call with DERIVATIVE=>'numeric' and
 subsequently make a call with DERIVATIVE=>'analytic' you are
 ok. But if you try it in the other order, you will get a
 runtime error. You can also pass a pdl created elsewhere
-with the correct type and enough or more than storage.
+with the correct type and enough or more than enough storage.
 
 There are several pdls used by levmar() that have a similar option.
 
@@ -520,21 +529,18 @@ some problem. But unless the covariance matrix is very large,
 it probably won't help much. On the other hand it almost certainly
 won't make levmar() less efficient.  See the section on WORK above.
 
-The option COVAR differs from the option WORK in that
-levmar() never passes a reference to the workspace storage
-via the output hash (or any other route) in the following
-way: You only get the reference for workspace if you make a
-pdl and pass it to levmar(). However, if you do the
-following,
+Note that levmar returns a piddle representing the covariance in
+the output hash. This will be the the same piddle that you give
+as input via this option. So, if you do the following,
 
   my $covar = PDL->null
   my $h =levmar(...., COVAR => $covar);
 
 then $covar and $h->{COVAR} are references to the same
 pdl. The storage for the pdl will not be destroyed until
-both $covar and $h->{COVAR} become undefined.
-
-
+both $covar and $h->{COVAR} become undefined. The option
+C<WORK> differs in this regard. That is, the piddle containing
+the workspace is not returned in the hash.
 
 =item NOCOVAR
 
@@ -545,7 +551,7 @@ If defined, no covariance matrix is computed.
 Send a pdl reference for the output hash element P. Don't
 confuse this with the option P which can be used to send the
 initial guess for the parameters
-(see COVAR and WORK).
+(see C<COVAR> and C<WORK>).
 
 =item INFO
 
@@ -560,8 +566,8 @@ Send a pdl reference for the output hash element C<RET>.
 
 =item MAXITS
 
-Maximum number of iterations to try before giving up. Defaults
-to 100.
+Maximum number of iterations to try before giving up. The default
+is 100.
 
 =item MU
 
@@ -572,16 +578,16 @@ The starting value of the parameter mu in the L-M algorithm.
 Stopping thresholds for C<||J^T e||_inf>, C<||Dp||_2> and
 C<||e||_2>. (see the document levmar.pdf by the author of
 liblevmar and distributed with this module) The algorithm
-stops when the first threshold is reached (or MAXITS is reache).  See
-REASON for determining which threshold was reached.
+stops when the first threshold is reached (or C<MAXITS> is reached).  See
+C<REASON> for determining which threshold was reached.
 
 Here, C<e> is a the vector of errors between the data and
 the model function and C<p> is the vector of parameters.
- C<||J^T e||_inf> is the gradient of C<e> w.r.t C<p>
+ S<||J^T e||_inf> is the gradient of C<e> w.r.t C<p>
 at the current estimate of C<p>;  C<||Dp||_2>  is the amount
 by which C<p> is currently being shifted at each iteration;
 C<||e||_2> is a measure of the error between the model function
-at the current estimate for C<p> and the data
+at the current estimate for C<p> and the data.
 
 =item DELTA
 
@@ -590,7 +596,7 @@ not used if the analytic jacobian is used.
 
 =item Default values
 
-In lieu of proper documentation here are the default values
+Here are the default values
 of some options
 
 
@@ -812,7 +818,18 @@ are ignored. So you are required to put the derivative in order. An example is
 =item C Code
 
 The jacobian name must start with 'jac' when a pure C function definition
-is used.
+is used. To see example of fit functions writen in C, call levmar
+with lpp code and the option C<NOCLEAN>. This will leave the C source
+in the directory given by C<DIR>. The C code you supply is mangled
+slightly before passing it to the compiler: It is copied twice, with
+FLOAT defined in one case as C<double> and in the other as C<float>.
+The letter C<s> is also appended to the function names in the latter
+copy. The C code is parsed to find the fit function name and the
+jacobian function name.
+
+We should make it possible to pass the function names as a separate option
+rather than parsing the C code. This will allow auxiallary functions to
+be defined in the C code; something that is currently not possible.
 
 
 =item Perl_Subroutines
@@ -863,6 +880,8 @@ This will happen, for instance if you do C<$outh = undef>.
 
 
 =head1 IMPLEMENTATION
+
+This section currently only refers to the interface and not the fit algorithms.
 
 =over 3
 
@@ -1579,11 +1598,11 @@ sub levmar_chkjac {
 	    my $h = {};
 	    if ($der eq 'analytic') { # analytic derivative
 		$h->{NAME} = 'analytic';
-		$h->{OPAR} = ' int jacn; int sjacn; ';
+		$h->{OPAR} = ' IV jacn; IV sjacn; ';
 		$h->{CALL} = 'der';
 		$h->{ARG} = '$TFD(tsjacn, tjacn),';
-                $h->{DUMI}= 'int tjacn = $COMP(jacn);
-                             int tsjacn = $COMP(sjacn);';
+                $h->{DUMI}= 'void * tjacn = (void *) $COMP(jacn);
+                             void * tsjacn = (void *) $COMP(sjacn);';
 
                 $h->{WORKFAC} = 2;    # needs less workspace than numeric
 	    }
@@ -1615,7 +1634,7 @@ sub levmar_chkjac {
                    Pars => " p(m);  x(n);  t(nt); $h->{SIG} int iopts(in);  opts(nopt); [t] work(wn);
 	                [o] covar(m,m) ; int [o] returnval();
                         [o] pout(m);  [o] info(q=9); ",
-	          OtherPars => " int funcn; int sfuncn;  $h->{OPAR} int indat; "
+	          OtherPars => " IV funcn; IV sfuncn;  $h->{OPAR} IV indat; "
                           . " int want_covar;  ",
                   RedoDimsCode => "
                      int im = \$PDL(p)->dims[0];
@@ -1628,11 +1647,11 @@ sub levmar_chkjac {
                   Code => "
                      int * iopts;
                      int maxits;
-                     int tfuncn = \$COMP(funcn);
-                     int tsfuncn = \$COMP(sfuncn);
+                     void * tfuncn = (void *) \$COMP(funcn);
+                     void * tsfuncn = (void *) \$COMP(sfuncn);
                      \$GENERIC(covar) * pcovar;
                      $h->{DUMI};
-                     DFP *dat = \$COMP(indat);
+                     DFP *dat = (void *) \$COMP(indat);
                      DFP_check( &dat, \$TFD(PDL_F,PDL_D), \$SIZE(m), \$SIZE(n),
 		                      \$SIZE(nt), \$P(t) );
                      threadloop %{    
@@ -1699,14 +1718,14 @@ sub levmar_chkjac {
 =cut
 
     pp_def('_levmar_chkjac', Pars => ' p(m); t(n); [o] err(n); ',
-                OtherPars => 'int func; int sfunc; int jac; int sjac; int indat; ',
+                OtherPars => ' IV func; IV sfunc; IV jac; IV sjac; IV indat; ',
 	        GenericTypes => ['F','D'], Doc => undef,
                 Code => '
-                int f = $COMP(func);
-                int sf = $COMP(sfunc);
-                int j = $COMP(jac);
-                int sj = $COMP(sjac);
-                DFP *dat = $COMP(indat);
+                void * f = (void *) $COMP(func);
+                void * sf = (void *) $COMP(sfunc);
+                void * j = (void *) $COMP(jac);
+                void * sj = (void *) $COMP(sjac);
+                DFP *dat = (void *) $COMP(indat);
                 DFP_check( &dat, $TFD(PDL_F,PDL_D), $SIZE(m), $SIZE(n), $SIZE(n), $P(t) );
                 $TFD(slevmar_chkjac,dlevmar_chkjac) (
     	           $TFD(sf,f), $TFD(sj,j),$P(p),$SIZE(m),$SIZE(n),dat,$P(err)
@@ -1714,9 +1733,14 @@ sub levmar_chkjac {
                 '
            );
 
+# From perl5 internals, chapter 4 ...
+#Perl's integer type is not necessarily a C int; it's called
+#an IV, or Integer Value. The difference is that an IV is
+#guaranteed to hold a pointer.
+
 
     pp_def('_levmar_chkjac_no_t', Pars => ' p(m); [o] err(n); ',
-                OtherPars => 'int func; int sfunc; int jac; int sjac; int N; int indat; ',
+                OtherPars => 'IV func; IV sfunc; IV jac; IV sjac; int N; int indat; ',
 	        GenericTypes => ['F','D'], Doc => undef,
                   RedoDimsCode => "
                      int N = \$COMP(N);
@@ -1724,11 +1748,11 @@ sub levmar_chkjac {
                      \$SIZE(n) = nin >= N ? nin : N;
                   ",
                 Code => '
-                int f = $COMP(func);
-                int sf = $COMP(sfunc);
-                int j = $COMP(jac);
-                int sj = $COMP(sjac);
-                DFP *dat = $COMP(indat);
+                void * f = (void *) $COMP(func);
+                void * sf = (void *) $COMP(sfunc);
+                void * j = (void *) $COMP(jac);
+                void * sj =(void *)  $COMP(sjac);
+                DFP *dat = (void *) $COMP(indat);
                 DFP_check( &dat, $TFD(PDL_F,PDL_D), $SIZE(m), $SIZE(n), $SIZE(n), NULL );
                 $TFD(slevmar_chkjac,dlevmar_chkjac) (
     	           $TFD(sf,f), $TFD(sj,j),$P(p),$SIZE(m),$SIZE(n),dat,$P(err)
@@ -1753,7 +1777,7 @@ sub levmar_chkjac {
 pp_addxs( '', '
 
 
-int
+void *
 DFP_create()
 
      CODE:
@@ -1763,7 +1787,7 @@ DFP_create()
        fprintf(stderr, "Can\'t allocate storage for dat in DFP_create\n");
        exit(1);
      }
-     RETVAL = (int) dat;
+     RETVAL = dat;
      OUTPUT:
      RETVAL
 
@@ -1815,7 +1839,7 @@ get_dbl_max(  )
 
 =cut
 
-int
+void *
 get_perl_func_wrapper( )
 
     CODE:
@@ -1823,7 +1847,7 @@ get_perl_func_wrapper( )
     OUTPUT:
     RETVAL
 
-int
+void *
 get_perl_jac_wrapper( )
 
     CODE:

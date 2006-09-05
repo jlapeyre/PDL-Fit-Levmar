@@ -4,7 +4,7 @@ use ExtUtils::MakeMaker;
 use Carp;
 PDL::Core::Dev->import();
 
-$VERSION = "0.0083"; # Func/Makefile.PL relies on this!
+$VERSION = "0.0085"; # Func/Makefile.PL relies on this!
 
 $levmarsrc = "./levmar-2.1.3";
 $lmpackage = ["levmar.pd", Levmar, PDL::Fit::Levmar];
@@ -13,7 +13,7 @@ $hash{VERSION}  = $VERSION;
 $hash{INC} .= " -I $levmarsrc";
 
 # I spent a few hours trying to figure out how to automatically
-# determine how to link lapack and blas. But I had no luck
+# determine how to link lapack and blas. But I had no luck.
 
 $hash{LIBS} = [ ' -lm  -llapack -lblas '];
 
@@ -25,7 +25,6 @@ $hash{LIBS} = [ ' -lm  -llapack -lblas '];
 
 $hash{DIR} = [ 'Func' ];
 $hash{DEFINE} = " -DHAVE_LAPACK ";
-#$hash{OBJECT} .= ' levmar_driver$(OBJ_EXT) ';
 foreach my $f (qw( lm Axb misc lmlec lmbc ) ){
     $hash{OBJECT} .= " $levmarsrc/$f\$(OBJ_EXT) ";
 }

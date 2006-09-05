@@ -34,7 +34,8 @@ sub ok {
     else {
 	$ok_count++;
     }
-    print "ok - $testno $s\n";   
+    print "ok - $testno $s\n";
+    
 }
 
 sub check_type {
@@ -107,6 +108,8 @@ sub chkjac {
     my $gh2 = levmar_func(FUNC=> $fref, JFUNC => $jref);
     my $err2 = levmar_chkjac($gh2,$p,$t);
     ok(tapprox($err2,$err), "Chkjac  lpp results == perl sub results");
+    print "# err1= $err\n";
+    print "# err2= $err2\n";
 }
 
 print "1..2\n";

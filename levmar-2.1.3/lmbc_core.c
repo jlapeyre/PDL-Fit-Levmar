@@ -403,10 +403,10 @@ int numactive;
   for(i=0; i<m; ++i)
     pDp[i]=p[i];
   BOXPROJECT(p, lb, ub, m); /* project to feasible set */
-  for(i=0; i<m; ++i)
-    if(pDp[i]!=p[i])
-      fprintf(stderr, RCAT("Warning: component %d of starting point not feasible in ", LEVMAR_BC_DER) "()! [%g projected to %g]\n",
-                      i, p[i], pDp[i]);
+  /*  for(i=0; i<m; ++i)
+       if(pDp[i]!=p[i])
+        fprintf(stderr, RCAT("Warning: component %d of starting point not feasible in ", LEVMAR_BC_DER) "()! [%g projected to %g]\n",
+	  i, p[i], pDp[i]);  */
 
   /* compute e=x - f(p) and its L2 norm */
   (*func)(p, hx, m, n, adata); nfev=1;

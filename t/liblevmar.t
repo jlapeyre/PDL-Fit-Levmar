@@ -25,6 +25,7 @@ sub tapprox {
         my($a,$b) = @_;
         my $c = abs(topdl($a)-topdl($b));
         my $d = max($c);
+	print "# tapprox: $a, $b\n";
         $d < 0.0001;
 }
 
@@ -575,6 +576,7 @@ my $defst = '
 #  deb $h->{P};
 #  deb $h->{INFO};
 }
+
 
 
 print "1..24\n";

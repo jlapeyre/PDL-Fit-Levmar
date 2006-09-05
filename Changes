@@ -1,3 +1,17 @@
+0.0085
+GJL  04-Sep-2006
+ - Removed non-fatal warnings from liblevmar 'starting point not feasible'
+ - Removed all uses of int's as pointers, as this is not portable to,
+   for instance, AMD64. Also did explicit casts to remove 'int to pointer without
+   cast' type warnings. (I don't see whats happening here, but its casting perl IVs,
+   which are supposed to be able to hold pointers.
+
+0.0084
+GJL  24-Jul-2006
+ - Documentation fixes.
+ - Added (a working) 'call' method to Levmar::Func. It currently will not
+   work with perl subs. Added Func/t/call.t .
+
 0.0083
 GJL  20-Jul-2006
  - Fixed bug that prevented x and t from having different dimensions.

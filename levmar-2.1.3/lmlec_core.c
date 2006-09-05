@@ -457,9 +457,9 @@ int LEVMAR_LEC_DER(
     Zimm=Z+i*mm;
     for(j=0, tmp=data.c[i]; j<mm; ++j)
       tmp+=Zimm[j]*pp[j]; // tmp+=Z[i*mm+j]*pp[j];
-    if(FABS(tmp-p0[i])>CNST(1E-03))
+    /*    if(FABS(tmp-p0[i])>CNST(1E-03))
       fprintf(stderr, RCAT("Warning: component %d of starting point not feasible in ", LEVMAR_LEC_DER) "()! [%.10g reset to %.10g]\n",
-                      i, p0[i], tmp);
+      i, p0[i], tmp); */
   }
 
   if(!info) info=locinfo; /* make sure that LEVMAR_DER() is called with non-null info */
@@ -573,9 +573,9 @@ int LEVMAR_LEC_DIF(
     Zimm=Z+i*mm;
     for(j=0, tmp=data.c[i]; j<mm; ++j)
       tmp+=Zimm[j]*pp[j]; // tmp+=Z[i*mm+j]*pp[j];
-    if(FABS(tmp-p0[i])>CNST(1E-03))
-      fprintf(stderr, RCAT("Warning: component %d of starting point not feasible in ", LEVMAR_LEC_DIF) "()! [%.10g reset to %.10g]\n",
-                      i, p0[i], tmp);
+    /*    if(FABS(tmp-p0[i])>CNST(1E-03))
+           fprintf(stderr, RCAT("Warning: component %d of starting point not feasible in ", LEVMAR_LEC_DIF) "()! [%.10g reset to %.10g]\n",
+	      i, p0[i], tmp); */
   }
 
   if(!info) info=locinfo; /* make sure that LEVMAR_DIF() is called with non-null info */

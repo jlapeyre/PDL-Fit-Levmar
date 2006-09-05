@@ -8,7 +8,8 @@ Func/func.pd
 Func/getsymbol.c
 Func/Makefile.PL
 Func/purepdlt.pl
-Func/t.disable/func.t.d
+Func/t/func.t.d
+Func/t/call.t
 INSTALL
 COPYING
 Changes
@@ -42,7 +43,8 @@ newtest.pl
 NOTES
 pdlperlfunc.c
 README
-scantree.pl
+pdlscantree
+pdlscantree.pod
 t/gauss_from_c.c
 t/ros.c
 t/gauss_from_def.lpp

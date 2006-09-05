@@ -12,7 +12,7 @@ PDL::Fit::Levmar::Func - Create model functions for Levenberg-Marquardt fit rout
 This module creates and manages functions for use with the Levmar fitting module.
 The functions are created with a very simple description language 
 (that is mostly C), or are pure C, or are perl code. For more documentation, see
-PDL::Fit::Levmar.
+L<PDL::Fit::Levmar>.
 
 =head1 SYNOPSIS
 
@@ -61,6 +61,40 @@ see PDL::Fit::Levmar::Func for more information.
 
 =for options
 
+=head2 call()
+
+=for ref
+
+Call (evaluate) the fit function in a Levmar::Func object.
+
+=for usage
+
+ use PDL::Fit::Levmar::Func;
+
+ $Gh = levmar_func(FUNC=>$fcode);
+
+ $x = $Gh->call($p,$t);
+
+ Here $fcode is a function definition (say lpp code). (This does
+ not currently work with perl subroutines, I think. Of course,
+ you can call the subroutine directly. But it would be good
+ to support it for consistency.)
+ 
+ $p is a pdl or ref to array of parameters.
+ $t is a pdl of co-ordinate values.
+ $x is the fit function evaluated at $p and $t. $x has the
+ same shape as $t.
+
+=for example
+
+ $Gf = levmar_func( FUNC => '
+       function	   
+       x = p0 * t * t;
+     ');
+
+ print $Gf->call([2],sequence(10))  , "\n";
+ [0 2 8 18 32 50 72 98 128 162]
+
 =cut 
 
 
@@ -73,7 +107,7 @@ use File::Spec::Functions;
 sub munlink;
 
 #use PDL::NiceSlice;
-#use PDL::Core ':Internal'; # For topdl()
+use PDL::Core ':Internal'; # For topdl()
 
 use vars ('$MKOBJ', '$MKSO', '$OBJ_EXT' , '$SO',
 	  '$LEVFUNC', '$JLEVFUNC', '$LPPEXT' );
@@ -388,41 +422,6 @@ sub get_funcs_from_c {
     }
     return ($fname, $jacname);
 }
-
-
-=pod 
-
-# jacobian function name **must** start with 'jac' if using pure c code
-sub get_funcs_from_c {
-    my $self = shift;
-    my @lines = split ("\n",$self->{CCODE});
-    my ($fname, $jacname, $sfname, $sjacname) = (undef, undef, undef,undef);
-    foreach (@lines ) {
-	if ( /^\s*void\s+([\w]+)/ ) { # prototype begins with 'void' return type
-	    my $fn = $1;
-	    if ($fn =~ /^jac/ ) {
-		$jacname = $fn;
-	    }
-	    elsif ($fn =~ /^sjac/ ) {
-		$sjacname = $fn;
-	    }
-	    else { 
-		if (defined $fname ) {
-		    $sfname = $fn;
-		}
-		else {
-		    $fname = $fn;
-		}
-	    }
-	}
-    }
-    if ( not defined $fname ) { # ok if jacname == undef
-	die "Can't find function name from c code";
-    }
-    return ($fname, $sfname, $jacname, $sjacname);
-}
-
-=cut
 
 sub write_ccode {
     my $self = shift;
@@ -840,25 +839,25 @@ sub close_shared_object_file {
 #-----------------------------------------
 # Some methods to call the functions
 
+# evaluate the function.
 # Given parameters p and coordiante pdl t,
 # return x(t;p) with x->dims == t->dims.
 # The functions don't really have to have
 # this form, but this is what we assume for
 # this call.
-sub x_of_t {
+sub call {
     my $self = shift;
     my ($p,$t) = @_; # pdls
-    my $x = zeroes($t->type, $t);
+    my $x = zeroes($t);
     if ($self->{FPOINTER} == 0) {
 	warn "No function loaded.";
 	return PDL->null;
     }
-    _callf($p,$t,$x, $self->{FPOINTER});
+    _callf(topdl($p),$t,$x, $self->{FPOINTER});
     return($x);
 }
 
 # call jacobian and get back 2-d pdl
-# (its not really a jacobian!)
 # return jac(m,n) = jacfunc(p(m),t(n))
 sub jac_of_t {
     my $self = shift;
@@ -939,8 +938,8 @@ void
 call_open_and_find( lib_name, func_name, lib_handle, func_pointer,  error_message, nchar )
   char * lib_name
   char * func_name
-  int  lib_handle
-  int  func_pointer
+  void *  lib_handle
+  void *  func_pointer
   char * error_message
   int  nchar
   CODE:
@@ -952,7 +951,7 @@ call_open_and_find( lib_name, func_name, lib_handle, func_pointer,  error_messag
 
 void
 call_close_shared_object_file ( lib_handle, rval , error_message, nchar )
-   int  lib_handle
+   void *  lib_handle
    int  rval
    char * error_message
    int   nchar
