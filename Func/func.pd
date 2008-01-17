@@ -9,10 +9,13 @@ PDL::Fit::Levmar::Func - Create model functions for Levenberg-Marquardt fit rout
 
 =head1 DESCRIPTION
 
-This module creates and manages functions for use with the Levmar fitting module.
-The functions are created with a very simple description language 
-(that is mostly C), or are pure C, or are perl code. For more documentation, see
-L<PDL::Fit::Levmar>.
+This module creates and manages functions for use with the
+Levmar fitting module.  The functions are created with a
+very simple description language (that is mostly C), or are
+pure C, or are perl code. For many applications, the present
+document is not necessary because levmar uses the
+Levmar::Func module transparantly.  Therefore, before
+reading the following, refer to L<PDL::Fit::Levmar>.
 
 =head1 SYNOPSIS
 
@@ -895,7 +898,7 @@ sub jac_of_t1 {
 
 pp_def ( '_callf' ,
        Pars => ' double p(m); double t(nt); double [o]x(n);',
-       OtherPars => ' int func; ',
+       OtherPars => ' IV func; ',
        GenericTypes => ['D'],  Doc => undef,
        Code => ' void (*fp)(double *, double *, int, int, void *);
                  fp = (void (*)(double*, double*, int, int, void*)) $COMP(func);
@@ -905,7 +908,7 @@ pp_def ( '_callf' ,
 # This treats d as 2d pdl
 pp_def ( '_callj' ,
        Pars => ' double p(m); double t(nt); double [o]x(m,n);',
-       OtherPars => ' int func; ',
+       OtherPars => ' IV func; ',
        GenericTypes => ['D'], Doc => undef,
        Code => ' void (*fp)(double *, double *, int, int, void *);
                  fp = (void (*)(double*, double*, int, int, void*)) $COMP(func);
@@ -915,7 +918,7 @@ pp_def ( '_callj' ,
 # d is longer 1d pdl
 pp_def ( '_callj1' ,
        Pars => ' double p(m); double t(nt); double [o]jac(jm);',
-       OtherPars => ' int func; ',
+       OtherPars => ' IV func; ',
        GenericTypes => ['D'], Doc => undef,
        Code => ' void (*fp)(double *, double *, int, int, void *);
                  fp = (void (*)(double*, double*, int, int, void*)) $COMP(func);

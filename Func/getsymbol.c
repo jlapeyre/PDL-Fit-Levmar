@@ -40,7 +40,7 @@ void _open_and_find (  char * lib_name, char * func_name, void ** lib_handle ,
   }
   else {
     fprintf(stderr,"dlopen '%s'\n", errmsg);
-    memccpy( error_message, errmsg , (int) NULL, nchar);
+    memccpy( error_message, errmsg , 0, nchar);
   }
 }
 
@@ -52,7 +52,7 @@ void   _close_shared_object_file( void ** lib_handle, int * rval, char * error_m
     strcpy( error_message, "" );
   }
   else {
-    memccpy( error_message, errmsg , (int) NULL, nchar);
+    memccpy( error_message, errmsg , 0, nchar);
   }
   //  fprintf(stderr,"close library err '%s'\n",errmsg);  
 }

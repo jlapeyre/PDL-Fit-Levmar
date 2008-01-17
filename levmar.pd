@@ -15,7 +15,7 @@ functions non-linear in fit parameters.
 
 This module provides a L<PDL> ( L<PDL::PDL> ) interface to the non-linear fitting
 library levmar (written in C). Levmar is
-L<thread|/example--6> aware, provides support for analytic
+L<thread|/example--6> aware (in the L<PDL> sense), provides support for analytic
 or finite difference derivatives (in case no analytic
 derivatives are supplied), L<linear|/A> or L<box|/UB>
 constraints (with L<parameter fixing|/FIX> as a special
@@ -382,14 +382,15 @@ anyway.
 
 =item NOCLEAN
 
-If defined (NOCLEAN => 1), don't delete files containing generated C,
-object and dynamic library code. If not defined, these files
-are deleted after they are no longer needed. For the source
-and object (.c and .o) files, this means immediately after
-the dynamic library (.so) is built.  The dynamic library
-file is deleted when the corresponding Levmar::Func object
-is destroyed. (It could be deleted after it is loaded, I
-suppose, and then be rebuilt if needed again)
+If defined (NOCLEAN => 1), files containing generated C
+object and dynamic library code are not deleted. If not
+defined, these files are deleted after they are no longer
+needed. For the source and object (.c and .o) files, this
+means immediately after the dynamic library (.so) is built.
+The dynamic library file is deleted when the corresponding
+Levmar::Func object is destroyed. (It could be deleted after
+it is loaded, I suppose, and then be rebuilt if needed
+again)
 
 =item FIX
 
@@ -505,9 +506,10 @@ $work, no new storage will be created. In this example,
   ...
  }
 
-storage is created upon entering the subroutine and is destroyed
-upon leaving (provided a reference to $work was not stored in
-some data structure delclared in an block enclosing the subroutine.)
+storage is created in the first call to C<levmar> and is
+destroyed upon leaving the subroutine C<somefitting>
+(provided a reference to $work was not stored in some data
+structure delclared in an block enclosing the subroutine.)
 
 The numeric-derivative algorithms require more storage than
 the analytic-derivative algorithms. So if you create the
@@ -720,13 +722,13 @@ C<function funcname>. The first line of the jacobian
 definition, if the jacobian is to be defined, is C<jacobian
 funcname>. The function names can be any valid C function
 name. The names may also be omitted as they are never needed
-by the user. The names can be identical. (Notice that a
-numeric suffix is added if the .so file already exists. This
-is because, if another Func object has already loaded the
-shared library from an .so file, dlopen will use this loaded
-library for all C<Func> objects asking for that .so file, even
-if the file has been overwritten, causing unexpected
-behavior)
+by the user. The names can be identical. (Note that a
+numeric suffix will be automatically added to the function
+name if the .so file already exists. This is because, if
+another Func object has already loaded the shared library
+from an .so file, dlopen will use this loaded library for
+all C<Func> objects asking for that .so file, even if the
+file has been overwritten, causing unexpected behavior)
 
 =item C<loop>
 
@@ -801,12 +803,15 @@ only in fit function, not in jacobian.
 
 =item (dr or dr[i]) -> d[j++] 
 
-where r is a sequence of digits. Note that r and i
-are ignored. So you are required to put the derivative in order. An example is
+where r is a sequence of digits. Note that r and i are
+ignored. So you are required to list the derivatives in
+order. An example is
 
     d0 = t*t;  // derivative w.r.t p[0] loop over all points
     d1 = t;    
 
+If you write C<d1> first and then C<d0>, lpp will incorrectly
+assign the derivative functions.
 
 =back
 
@@ -1740,7 +1745,7 @@ sub levmar_chkjac {
 
 
     pp_def('_levmar_chkjac_no_t', Pars => ' p(m); [o] err(n); ',
-                OtherPars => 'IV func; IV sfunc; IV jac; IV sjac; int N; int indat; ',
+                OtherPars => 'IV func; IV sfunc; IV jac; IV sjac; int N; IV indat; ',
 	        GenericTypes => ['F','D'], Doc => undef,
                   RedoDimsCode => "
                      int N = \$COMP(N);
@@ -1793,7 +1798,7 @@ DFP_create()
 
 void
 DFP_free( dat )
-    int  dat
+    IV  dat
     
     CODE:
     if ( (DFP *) dat) free( (DFP *) dat);
@@ -1801,7 +1806,7 @@ DFP_free( dat )
 
 void 
 DFP_set_perl_funcs ( data,  perl_fit_func,  perl_jac_func )
-     int data
+     IV data
      SV* perl_fit_func
      SV* perl_jac_func
 
