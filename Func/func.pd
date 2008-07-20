@@ -363,7 +363,7 @@ sub make_ccode {
 #	if ( /^\s*void\s+([\w]+)/ )
 #	deb $floatcode;
 	$floatcode =~ s/$funcname/s$funcname/;
-	$floatcode =~ s/$jacname/s$jacname/;
+	$floatcode =~ s/$jacname/s$jacname/ if defined $jacname;
 #	deb $floatcode;
 	$self->{CCODE} = 
 "

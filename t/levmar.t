@@ -12,7 +12,7 @@ use PDL::Core ':Internal'; # For topdl()
 $ok_count = 0;
 $not_ok_count = 0;
 
-print "1..26\n";
+print "1..27\n";
 ok(1, "Levmar and Levmar::Func Modules loaded"); # If we made it this far, we're ok.
 
 # set to 0 or 1, for no/yes commentary
@@ -344,6 +344,10 @@ $p = $ip->copy;
 $hout = levmar($p,$x,$t, FUNC => 't/gauss_from_c.c' );
 ok ( tapprox($hout->{P},$p_actual), " FUNC => 't/gauss_from_c.c'");
 
+#---TEST------------------------------------------------
+$p = $ip->copy;
+$hout = levmar($p,$x,$t, CSRC => 't/gauss_from_c_nojac.c' );
+ok ( tapprox($hout->{P},$p_actual), " CSRC => 't/gauss_from_c_nojac.c'");
 
 #---TEST------------------------------------------------
 $p = $ip->copy;

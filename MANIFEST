@@ -46,6 +46,7 @@ README
 pdlscantree
 pdlscantree.pod
 t/gauss_from_c.c
+t/gauss_from_c_nojac.c
 t/ros.c
 t/gauss_from_def.lpp
 t/levmar.t
