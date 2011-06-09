@@ -4,8 +4,10 @@ use PDL::Fit::Levmar;
 use PDL::Fit::Levmar::Func;
 use PDL::NiceSlice;
 use PDL::Core ':Internal'; # For topdl()
-
 use strict;
+
+# Tests to check how the arguments are passed to the top level levmar function
+
 use vars ( '$testno', '$ok_count', '$not_ok_count', '@g', '$Gh',
      '$Gf');
 
@@ -65,8 +67,8 @@ sub t_getopts {
 sub t_order_args {
     my ($pc,$x,$t) = make_gaussian_data();
     my $p = $pc*1.1;
-    deb "# ordering of arguments";
-    deb '# $Gh is Func handle';
+#    deb "# ordering of arguments";
+#    deb '# $Gh is Func handle';
     map { ok( tapprox((eval $_)->{P},$pc), $_) }
 	(
 	 '  levmar($Gh,$p,$x,$t)',

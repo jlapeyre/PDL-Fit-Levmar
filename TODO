@@ -3,12 +3,6 @@ the following tasks.
 
 === Potential bugs or porting problems:
 
--- I assume sizeof(int) == sizeof(void *), and let
-   perl make code for passing an int. Better is
-   using $Config{ptrsize} and packing a string and
-   using 'char *' in xs code. That way, this module
-   has a better chance of being portable
-
 -- Perl has a an interface to dlopen, etc. It may be
    more portable to use that interface, rather than
    the one I wrote. 
@@ -73,3 +67,10 @@ Fri Jul  7 23:19:36 MST 2006
 --- liblevmar has routines for testing the jacobian that are not implemented
     here.
 
+-- I assume sizeof(int) == sizeof(void *), and let
+   perl make code for passing an int. Better is
+   using $Config{ptrsize} and packing a string and
+   using 'char *' in xs code. That way, this module
+   has a better chance of being portable
+
+    

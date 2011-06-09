@@ -3,8 +3,8 @@ use PDL::Core::Dev;
 use ExtUtils::MakeMaker;
 PDL::Core::Dev->import();
 
-$fpackage = ["func.pd", Func, PDL::Fit::Levmar::Func];
-%hash = pdlpp_stdargs($fpackage);
+my $fpackage = ["func.pd", Func, PDL::Fit::Levmar::Func];
+my %hash = pdlpp_stdargs($fpackage);
 
 $hash{VERSION_FROM}  = '../Makefile.PL';
 $hash{LIBS} = [' -lm  -ldl '];

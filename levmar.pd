@@ -14,19 +14,20 @@ Levenberg-Marquardt routines for least-squares fit to
 functions non-linear in fit parameters.
 
 This module provides a L<PDL> ( L<PDL::PDL> ) interface to the non-linear fitting
-library levmar (written in C). Levmar is
+library levmar 2.5 (written in C). Levmar is
 L<thread|/example--6> aware (in the L<PDL> sense), provides support for analytic
 or finite difference derivatives (in case no analytic
-derivatives are supplied), L<linear|/A> or L<box|/UB>
+derivatives are supplied), L<linear|/A> and/or L<box|/UB>
+and/or L<inequality|/C>
 constraints (with L<parameter fixing|/FIX> as a special
 case) and pure single or double precision computation. The
 routines are re-entrant, so they can be used in
 multi-threaded applications (not tested!). Levmar is suited
 both for data fitting and for optimization problems.
 
-Fit functions can be written in perl code that takes pdls as
-arguments, or, for efficiency, in in a simple function
-description language (C<lpp>), which is rapidly and
+User supplied fit functions can be written in perl code that
+takes pdls as arguments, or, for efficiency, in in a simple
+function description language (C<lpp>), which is rapidly and
 transparently translated to C, compiled, and dynamically
 linked.  Fit functions may also be written in pure C.  If C
 or C<lpp> fit functions are used, the entire fitting
@@ -60,7 +61,8 @@ directory C<./t> in the module distribution contains many more examples.
 =item example--1
 
 In this example we fill co-ordinate $t and ordinate $x arrays
-with sample data.
+with 100 pairs of sample data. Then we call the fit routine
+with initial guesses of the parameters.
 
  use PDL::Fit::Levmar;
  use PDL::Fit::Levmar::Func;
@@ -76,12 +78,32 @@ with sample data.
            ');
  print levmar_report($h);
 
-The fit function is in C<lpp> code. It was processed into
-C. The parameter pdl $p is the input parameters (guesses)
-levmar returns a hash with several elements including a
-plain text report of the fit.
+This example gives the output:
 
-We could have also called levmar like this
+ Estimated parameters: [         3        0.3]    
+ Covariance: 
+ [
+  [5.3772081e-25 7.1703376e-26]
+  [7.1703376e-26 2.8682471e-26]
+ ]
+
+ ||e||_2 at initial parameters = 125.201
+ Errors at estimated parameters:
+ ||e||_2	 = 8.03854e-22
+ ||J^T e||_inf	= 2.69892e-05
+ ||Dp||_2	= 3.9274e-15
+ \mu/max[J^T J]_ii ]	= 1.37223e-05
+ number of iterations	= 15
+ reason for termination: = stopped by small ||e||_2
+ number of function evaluations	= 20
+ number of jacobian evaluations	= 2
+
+The fit function in this example is in C<lpp> code.
+The parameter pdl $p is the input parameters (guesses)
+levmar returns a hash with several elements including a
+plain text report of the fit, which we chose to print.
+
+The interface is flexible-- we could have also called levmar like this
 
  $h = levmar($p,$x,$t, '   function
                       x = p0 * exp( -t*t * p1);
@@ -93,10 +115,9 @@ or like this
                       x = p0 * exp( -t*t * p1);
                       ');
 
-(As the module is tested, the interface may be restricted or changed.)
-
-The input parameters $p are left unchanged. The output hash $h contains
-among other things, the optimized parameters in $h->{P}.
+After the fit, the input parameters $p are left
+unchanged. The output hash $h contains, among other things,
+the optimized parameters in $h->{P}.
 
 =item example--2
 
@@ -108,16 +129,15 @@ Next, we do the same fit, but with a perl/PDL fit function.
     $x .= $p0 * exp(-$t*$t * $p1);
  });
 
-Using perl code (second example) is slower than using pure C
-(first example). How much slower depends on the problem (see
-L</IMPLEMENTATION> below). See also the section on 
-L<perl subroutines|/Perl_Subroutines>.
+Using perl code (second example) results in slower execution
+than using pure C (first example). How much slower depends
+on the problem (see L</IMPLEMENTATION> below). See also the
+section on L<perl subroutines|/Perl_Subroutines>.
 
 =item example--3
 
-Next, we send a C fit routine.
+Next, we solve the same problem using a C fit routine.
 
- $p = $ip->copy;
  levmar($p,$x,$t, FUNC => '
  #include <math.h>
  void gaussian(FLOAT *p, FLOAT *x, int m, int n, FLOAT *t)
@@ -132,7 +152,7 @@ The macro C<FLOAT> is used rather than float or double because
 the C code will be used for both single and double precision
 routines. ( The code is automatically compiled twice; once
 with C<FLOAT> expanded to double and once expanded to float)
-The correct version is automatically used depending on the
+The correct version is used automatically depending on the
 type of pdls you give levmar.
 
 
@@ -154,7 +174,6 @@ We supply an analytic derivative ( analytic jacobian).
 
  ';
 
- $p = $ip->copy;
  $h = levmar($p,$x,$t, FUNC => $st);
 
 If no jacobian function is supplied, levmar automatically
@@ -309,14 +328,21 @@ At this point C<$h->{P}> refers to the output parameter piddle C<[0.5, 2, 3]>.
 
 =back
 
+=head1 CONSTRAINTS
+
+Several of the options below are related to constraints. There are
+three types: box, linear equation, and linear inequality. They may
+be used in any combination. (But there is no testing if
+there is a possible solution.) None or one or two  of C<UB> and C<LB> may be
+specified. None or both of C<A> and C<B> may be specified.
+None or both of C<C> and C<D> may be specified.
+
 =head1 OPTIONS
 
 It is best to learn how to call levmar by looking at the
 examples first, and looking at this section later.
 
-At this point, a  liberal approach to the interface
-design has been taken-- Tim-Toady and all of that.  But it
-may be restricted in the future. levmar() is called like this
+levmar() is called like this
 
  levmar($arg1, $arg2, ..., OPT1=>$val1, OPT2=>$val2, ...);
  or this:
@@ -348,7 +374,7 @@ C<$outh> refers to the output hash.
 =item FUNC
 
 This option is required (but it can be passed before the
-options hash without the key C<FUNC> ) Currently, it can be
+options hash without the key C<FUNC> ) It can be
 any of the following, which are auto-detected.
 
  a string containing lpp code
@@ -364,7 +390,7 @@ a loop of perl code, it is by far most efficient to create a Func
 object from C or lpp code and pass it to levmar. (Implicit threading
 does not recompile code in any case.)
 
-Currently you can also pass pure C code via the option CSRC.
+You can also pass pure C code via the option CSRC.
 
 =item JFUNC
 
@@ -424,7 +450,7 @@ values of UB and LB are overridden.
 
 Example: A =>pdl [ [1,0], [0,1] ] , B => pdl [ 1,2 ] 
 
-Minimize with linear constraints $A x $b = $p. That is,
+Minimize with linear constraints $A x $p = $b. That is,
 parameters $p are optimized over the subset of parameters
 that solve the equation.  The dimensions of the quantities
 are A(k,m), b(m), p(m), where k is the number of
@@ -443,11 +469,29 @@ pdl $p. The fit is done with ub forming upper bounds and lb
 lower bounds on the parameter values. Use, for instance
 PDL::Fit::Levmar::get_dbl_max() for parameters that you
 don't want bounded. You can use either linear constraints or
-box constraints, but not both.
+box constraints, or both. That is, you may specify A, B, UB, and LB.
 
 =item LB
 
 See C<UB>.
+
+
+=item WGHTS
+
+Penalty weights can be given optionally when box and linear equality
+constraints are both passed to levmar. See the levmar documenation for
+how to use this. Note that if C and D are used then the WGHTS must
+not passed.
+
+=item C
+
+Example: C => [ [ -1, -2, -1, -1], [ -3, -1, -2,  1] ], D => [ -5, -0.4]
+Linear inequality constraints. Minimize with constraints $C x $p >= $d.
+The dimensions are C(k2,m), D(m), p(m).
+
+=item D
+
+See C<C>
 
 =item  P
 
@@ -615,11 +659,14 @@ of some options
    FIX => undef,
    A => undef,
    B => undef,
+   C => undef,
+   D => undef,
    UB = undef,
    LB => undef,
    X => undef,
    P => undef,
    T => undef,
+   WGHTS => undef,
    # meant to be private
    LFUNC => undef,  # only Levmar::Func object, made from FUNC
    };
@@ -680,13 +727,14 @@ in the options section. ERR4 is C<mu/max[J^T J]_ii>
 
 Number of iterations performed
 
-=item NFUNC, NJAC
+=item NFUNC, NJAC, NLS
 
-Number of function evaluations and number of jacobian evaluations.
+Number of function evaluations, number of jacobian evaluations
+and number of linear systems solved.
 
 =item INFO
 
-Array containing  ERRI,ERR1, ..., ERR4, ITS, REASON, NFUNC, NJAC.
+Array containing  ERRI,ERR1, ..., ERR4, ITS, REASON, NFUNC, NJAC, NLS.
 
 =back
 
@@ -956,7 +1004,7 @@ PDL::Fit::Levmar for a complete description.
 
  p(m);  x(n);  t(nt); int itmax();
  [o] covar(m,m) ; int [o] returnval();
- [o] pout(m);  [o] info(q=9);
+ [o] pout(m);  [o] info(q=10);
 
 See the module documentation for information on passing
 these arguments to levmar.  Threading is known to
@@ -1037,6 +1085,14 @@ by lemvar().
  print levmar_report($h);
 
 
+=head1 BUGS
+
+With the levmar-2.5 code: Passing workspace currently does not work with
+linear inequality constraint. Some of the PDL threading no long works
+correctly. These are noted in the tests in t/thread.t. It is not clear
+if it is a threading issue or the fitting has changed.
+
+ 
 =cut
 
 #--------------------------------------------------------------------
@@ -1150,6 +1206,7 @@ number of iterations\t= %d
 reason for termination: = %s
 number of function evaluations\t= %d
 number of jacobian evaluations\t= %d
+number of linear systems solved\t= %d
 EOFORM
 my $st = sprintf($form, $p,$covar,@ninf);
     
@@ -1175,6 +1232,8 @@ $Levmar_defaults = {
     FIXB => undef,
     A => undef,
     B => undef,
+    C => undef,
+    D => undef,
     UB => undef,
     LB => undef,
     FUNC => undef,  # Levmar::Func object, or function def, or ...
@@ -1182,6 +1241,7 @@ $Levmar_defaults = {
     X => undef,
     P => undef,
     T => undef,
+    WGHTS => undef,
     COVAR => undef, # The next 5 params can be set to PDL->null
     WORK => undef,  # work space
     POUT => undef,  # ref for preallocated output parameters
@@ -1200,6 +1260,7 @@ This is the help string for levmar.
 }
 
 
+
 #################################################################
 sub levmar {
     my($p,$x,$t,$infunc);
@@ -1212,17 +1273,21 @@ sub levmar {
 	if ( (not defined $p ) and (ref($_[0]) eq 'PDL' or ref($_[0]) eq 'ARRAY')) {
 	    $p = shift ; $args++;
 	}
+        last if ( @_ == 0 );
 	if ( (not defined $x ) and (ref($_[0]) eq 'PDL' or ref($_[0]) eq 'ARRAY')) {
 	    $x = shift ; $args++;
 	}
+        last if ( @_ == 0 );
 	if ( (not defined $t) and (ref($_[0]) eq 'PDL' or ref($_[0]) eq 'ARRAY')) {
 	    $t = shift ; $args++;
 	}
+        last if ( @_ == 0 );
 	if ( not defined $infunc and ref($_[0]) =~ /Func|CODE/  ) {
 	    $infunc = shift; $args++;
 	}
+        last if ( @_ == 0 );
 	if ( (not defined $infunc) and 
-	     ( not ref($_[0]) ) and (  $_[0] =~ /(\.c|$LPPEXT)$/o or $_[0] =~ /\n/ ) ) {
+	     (  not ref($_[0]) ) and (  $_[0] =~ /(\.c|$LPPEXT)$/o or $_[0] =~ /\n/ ) ) {
 	    $infunc = shift; $args++;
 	}
 	last if ( @_ == 0 or  $args == 0);
@@ -1294,6 +1359,7 @@ sub levmar {
     my $covar;
     my $ret;
     my $work;
+    my $wghts;
 
 # should put this stuff in a loop
     $covar = $h->{COVAR} if defined $h->{COVAR};
@@ -1301,6 +1367,7 @@ sub levmar {
     $info = $h->{INFO} if defined $h->{INFO};
     $ret = $h->{RET} if defined $h->{RET};
     $work = $h->{WORK} if defined $h->{WORK};
+    $wghts = $h->{WGHTS} if defined $h->{WGHTS};
 
 # If they are set here, then there will be no external ref.
     $covar = PDL->null unless defined $covar;
@@ -1308,6 +1375,7 @@ sub levmar {
     $info = PDL->null unless defined $info;
     $ret = PDL->null unless defined $ret;
     $work = PDL->null unless defined $work;
+    $wghts = PDL->null unless defined $wghts;
 
 # Input pdl contstructed in levmar
 # Currently, the elements are set from a hash; no convenient way to thread.
@@ -1367,6 +1435,7 @@ sub levmar {
 	if ( $deriv eq 'analytic' and $jfunc == 0 ) {
 	  #  warn "No jacobian function supplied, using numeric derivatives";
 	    $deriv = 'numeric';
+            $h->{DERIVATIVE} = 'numeric';
 	}
 	DFP_set_perl_funcs($DFP, $h->{FUNC}, $h->{JFUNC});
 	$funcn = $Perl_func_wrapper;
@@ -1381,6 +1450,7 @@ sub levmar {
 	if  (not defined $jacn or $jacn == 0 ) {
 	    #   warn "No jacobian function supplied, using numeric derivatives";
 	    $deriv = 'numeric';
+            $h->{DERIVATIVE} = 'numeric';
 	}
     }
     elsif ( $deriv ne 'numeric' ) {
@@ -1443,58 +1513,35 @@ sub levmar {
 	# so ub and lb are now at maximum bounds where not fixed and at value of
         # p where fixed
     }
-
     my $want_covar = 1;
     if ( defined $h->{NOCOVAR} ) {
 	$want_covar = 0;
     }
-######### Now handle linear constraints; they were either constructed from the FIX
-# arg above, or they were passed directly.
-    if ( defined $h->{A} ) { # linear  constraints
-	croak "vector b must be defined if A is defined" unless defined $h->{B};
-	croak "ub and lb cannot be used simultaneously with A and b" if
-	    defined $h->{UB} or defined $h->{LB};
 
-	if ( not (ref($h->{A}) and ref($h->{B}) )) {
-            DFP_free($DFP);
-	    return {RET => -1, ERRS => ['A and b must be pdls or refs to arrays.'] 
-		    };
-	}
-	my $A = topdl ( $h->{A});
-	my $b = topdl ( $h->{B});
-	if ($deriv eq 'analytic') {
-	    levmar_lec_analytic($p,$x,$t,$A,$b,$iopts,$opts,$work,
-               $covar, $ret, $pout, $info, $funcn, $sfuncn, $jacn,$sjacn, $DFP, $want_covar);
-	}
-	else {
-	    levmar_lec_difference($p,$x,$t,$A,$b,$iopts,$opts,$work,
-              $covar, $ret, $pout, $info, $funcn, $sfuncn, $DFP, $want_covar);
-	}
+    my $errs = check_levmar_args($h);
+    if ( @$errs > 0 ) {
+#        print @$errs;
+        return {RET => -1, ERRS => $errs };
     }
-######## Box constraints
-    elsif ( defined $h->{LB} ) { # box constraints
-	croak "ub not defined" unless defined $h->{UB};
-	if ($deriv eq 'analytic') {
-	    levmar_bc_analytic($p,$x,$t, topdl( $h->{LB}),topdl($h->{UB}),$iopts,
-	   $opts,$work, $covar, $ret, $pout, $info, $funcn, $sfuncn,  $jacn,$sjacn, $DFP, $want_covar);
-	}
-	else {
-	    levmar_bc_difference($p,$x,$t,topdl( $h->{LB}),topdl( $h->{UB}),$iopts,
-		 $opts, $work, $covar,  $ret, $pout, $info, $funcn, $sfuncn, $DFP, $want_covar);
-	}
+    my ($func_key, $arg_list) = build_constraint_arg_combination($h);    
+#    print "func key '$func_key'\n";
+    if ( not defined $func_key ) {
+        croak "Could not find function key";
     }
+    if ( not exists $PDL::Fit::Levmar::PDL_Levmar_funcs{$func_key} ) {
+        croak "Could not find function for key";
+    }
+    my $pdl_levmar_func = $PDL::Fit::Levmar::PDL_Levmar_funcs{$func_key};
+#    print "func $pdl_levmar_func\n";
+#    my $nargs = @$arg_list;
+#    print "Got $nargs args\n";
+    my @jacobians = ();
+    if ( $h->{DERIVATIVE} eq 'analytic' ) {
+      @jacobians = ( $jacn, $sjacn );
+    }
+    &$pdl_levmar_func($p,$x,$t,@$arg_list,$iopts,$opts,$work,
+       $covar, $ret, $pout, $info, $funcn, $sfuncn, @jacobians, $DFP, $want_covar);
 
-####### Unconstrained
-    else { # no constraints
-	if ($deriv eq 'analytic') {
-	    levmar_analytic($p,$x,$t,$iopts,$opts, $work, $covar,
-              $ret, $pout, $info, $funcn, $sfuncn, $jacn,$sjacn, $DFP, $want_covar);
-	}
-	else {
-	    levmar_difference($p,$x,$t,$iopts,$opts, $work, $covar,
-              $ret, $pout, $info, $funcn, $sfuncn, $DFP, $want_covar);
-	}
-    }
     DFP_free($DFP) if $DFP;
 
     my  $hout = {
@@ -1510,12 +1557,119 @@ sub levmar {
 	    REASON =>  $info((6)),
 	    NFUNC =>  $info((7)),
 	    NJAC =>  $info((8)),
+	    NLS =>  $info((9)),            
 	    INFO => $info,
 	    FUNC => $h->{LFUNC},
 	};
     return $hout;
-
+ 
 } # end levmar()
+
+
+sub PDL::Fit::Levmar::check_levmar_args {
+    my ($h) = @_;
+    my @refargs = qw( LB UB A B C D );
+    my @errs = ();
+    foreach my $argname ( @refargs ) {
+        if ( exists $h->{$argname} and defined $h->{$argname} ) {
+            my $arg = $h->{$argname};
+            if ( not ref($arg) ) {
+                push @errs, "$argname must be a pdl or ref to array.";
+            }
+        }
+    }
+    my @combs = ( [ 'A', 'B' ], [ 'C', 'D' ] );
+    foreach my $comb  (@combs ) {
+        my $n = @$comb;
+        my $nf = 0;
+        foreach my $arg ( @$comb ) {
+            $nf++ if exists $h->{$arg} and defined $h->{$arg};
+        }
+        if ( $nf != 0  and  $n != $nf ) {
+            push @errs, 'none or all of ' . join(' and ',@$comb) . ' must be defined.';
+        }
+    }
+    return \@errs;
+}
+
+    
+# make a list of strings of names of constraint args that
+# have been passed.
+# hash is arg hash to top level call
+sub PDL::Fit::Levmar::build_constraint_arg_combination {
+    my ($h) = @_;
+    my @arg_comb = ();
+    my @arg_list = ();
+    # order is important in following
+    my @possible_args = qw( LB UB A B C D );
+    foreach ( @possible_args ) {
+        my $ucarg = $_;
+#        $ucarg =~ tr/a-z/A-Z/;  # should rewrite so that tr not needed
+        if ( exists $h->{$ucarg} and defined $h->{$ucarg} ) {
+            push @arg_comb, $_;
+            push @arg_list, topdl($h->{$ucarg});
+        }
+    }
+    my $deriv_type;
+    if ($h->{DERIVATIVE} eq 'analytic' ) {
+        $deriv_type = 'DER';
+    }
+    else {
+        $deriv_type = 'DIFF';
+    }
+    push @arg_list, topdl($h->{WGHTS}) if exists $h->{WGHTS} and defined $h->{WGHTS};
+    my $fk = make_pdl_levmar_func_key(make_hash_key_from_arg_comb(\@arg_comb), $deriv_type);
+    return ($fk,\@arg_list);
+}
+
+sub PDL::Fit::Levmar::make_hash_key_from_arg_comb {
+    my ( $arg_comb ) = @_;
+    return join( '_', @$arg_comb);
+}
+
+
+sub PDL::Fit::Levmar::make_pdl_levmar_func_key {
+    my ($arg_str, $deriv_type) = @_;
+    return  $deriv_type . '_' . $arg_str;
+}
+
+
+%PDL::Fit::Levmar::PDL_Levmar_funcs = (
+  DER_ => \&PDL::levmar_der_,
+  DIFF_ => \&PDL::levmar_diff_,
+  DER_LB_C_D => \&PDL::levmar_der_lb_C_d,
+  DIFF_LB_C_D => \&PDL::levmar_diff_lb_C_d,
+  DER_A_B => \&PDL::levmar_der_A_b,
+  DIFF_A_B => \&PDL::levmar_diff_A_b,
+  DER_UB_A_B => \&PDL::levmar_der_ub_A_b,
+  DIFF_UB_A_B => \&PDL::levmar_diff_ub_A_b,
+  DER_UB => \&PDL::levmar_der_ub,
+  DIFF_UB => \&PDL::levmar_diff_ub,
+  DER_A_B_C_D => \&PDL::levmar_der_A_b_C_d,
+  DIFF_A_B_C_D => \&PDL::levmar_diff_A_b_C_d,
+  DER_LB_UB_A_B_C_D => \&PDL::levmar_der_lb_ub_A_b_C_d,
+  DIFF_LB_UB_A_B_C_D => \&PDL::levmar_diff_lb_ub_A_b_C_d,
+  DER_LB => \&PDL::levmar_der_lb,
+  DIFF_LB => \&PDL::levmar_diff_lb,
+  DER_LB_A_B_C_D => \&PDL::levmar_der_lb_A_b_C_d,
+  DIFF_LB_A_B_C_D => \&PDL::levmar_diff_lb_A_b_C_d,
+  DER_UB_A_B_C_D => \&PDL::levmar_der_ub_A_b_C_d,
+  DIFF_UB_A_B_C_D => \&PDL::levmar_diff_ub_A_b_C_d,
+  DER_LB_UB => \&PDL::levmar_der_lb_ub,
+  DIFF_LB_UB => \&PDL::levmar_diff_lb_ub,
+  DER_LB_A_B => \&PDL::levmar_der_lb_A_b,
+  DIFF_LB_A_B => \&PDL::levmar_diff_lb_A_b,
+  DER_UB_C_D => \&PDL::levmar_der_ub_C_d,
+  DIFF_UB_C_D => \&PDL::levmar_diff_ub_C_d,
+  DER_LB_UB_A_B => \&PDL::levmar_der_lb_ub_A_b,
+  DIFF_LB_UB_A_B => \&PDL::levmar_diff_lb_ub_A_b,
+  DER_LB_UB_C_D => \&PDL::levmar_der_lb_ub_C_d,
+  DIFF_LB_UB_C_D => \&PDL::levmar_diff_lb_ub_C_d,
+  DER_C_D => \&PDL::levmar_der_C_d,
+  DIFF_C_D => \&PDL::levmar_diff_C_d,
+);
+
+
 
 
 sub levmar_chkjac {
@@ -1598,47 +1752,231 @@ sub levmar_chkjac {
 =cut
 
 
+
+# Note very carefully the placement of trailing commas and semi-colons here.
+
+sub find_levmar_func_name_from_args {
+    my ($arglist, $arg_descr) = @_;
+    my %seen = ();
+    my $nargs = @$arglist;
+    my $max_seen = 0;
+    foreach my $arg ( @$arglist ) {
+        foreach my $routine ( @{ $arg_descr->{$arg}->{ALLOWEDIN} } ) {
+            $seen{$routine}++;
+            $max_seen = $seen{$routine} if $max_seen < $seen{$routine};
+        }
+    }
+    my @routine_priority = qw( bc lec blec bleic );
+    my $routine = 'none';
+    foreach my $try_routine ( @routine_priority ) {
+        if ( exists $seen{$try_routine} and $seen{$try_routine} == $max_seen ) {
+            $routine = $try_routine;
+            last;
+        }
+    }
+#    print join(':',@$arglist)," => ";
+#    print $routine, "\n";
+    return $routine;
+}
+
+sub make_hash_key_from_arg_comb {
+    my ( $arg_comb ) = @_;
+    return join( '_', @$arg_comb);
+}
+
+# Make the string for Pars =>
+sub make_constraint_signature {
+    my ( $arg_comb, $arg_descr ) = @_;
+    my $sig_str = '';
+    foreach my $arg ( @$arg_comb ) {
+        $sig_str .= $arg_descr->{$arg}->{SIGNATURE}  . '; ';
+    }
+    $sig_str =~ s/;\s$//;
+    return $sig_str;
+}
+
+sub array_to_hash {
+    my ($a) = @_;
+    my $h = {};
+    foreach ( @$a) {
+        $h->{$_} = 1;
+    }
+    return $h;
+}
+
+# not working now,
+# need to use $levmar_routine_description
+# below to build correct call arguments
+# test if arg is present in arg_comb and write NULL , if not
+sub make_constraint_call_args {
+    my ( $arg_comb, $arg_descr, $levmar_routine_description, $levmar_funtion_name ) = @_;
+    my $route_descr = $levmar_routine_description->{$levmar_funtion_name};
+    my $args = $route_descr->{ARGS};
+    my $reqr = {};
+    my $arg_comb_hash = array_to_hash($arg_comb);
+    $reqr = $route_descr->{REQR} if exists $route_descr->{REQR};
+    my $call_str = '';
+    foreach my $arg ( @$args ) {
+        if ( exists $reqr->{$arg}) {
+            if ( exists $arg_comb_hash->{$reqr->{$arg}} ) {
+                $call_str .= "$arg,";
+            }
+            else {
+                $call_str .= '0,';
+            }
+            next;
+        }
+        if ( not exists $arg_comb_hash->{$arg} ) {
+            $call_str .= 'NULL,';
+            next;
+        }
+        $call_str .= $arg_descr->{$arg}->{CALLARG}  . ', ';
+    }
+#    $call_str =~ s/,\s$//;
+    return $call_str;
+}
+
+# We will write  64 (perhaps) pdl function definitions.
+# For each constraint option (A,b,C... etc) we have the following:
+# SIGNATURE  is the string that is part of the ppdef pdl signature
+# CALLARG  is the pp_def argument in the call to the C routine
+# ALLOWEDIN is the list of levmar C routines that take this constraint as an argument
+sub make_argument_combinations {
+    my $arg_descr = {
+        A => {
+            SIGNATURE => 'A(m,k)',
+            CALLARG => '$P(A)',
+            ALLOWEDIN => [qw( lec  blec  bleic   )],
+            },
+        b => {
+            SIGNATURE => 'b(k)',
+            CALLARG => '$P(b)',
+            ALLOWEDIN => [qw( lec  blec  bleic   )],
+            },
+        ub => {
+            SIGNATURE => 'ub(m)',
+            CALLARG => '$P(ub)',
+            ALLOWEDIN => [qw( bc  blec  bleic   )],
+        },
+        lb => {
+            SIGNATURE => 'lb(m)',
+            CALLARG => '$P(lb)',
+            ALLOWEDIN => [qw( bc  blec  bleic  )],
+        },
+        C => {
+            SIGNATURE => 'C(m,k2)',
+            CALLARG => '$P(C)',
+            ALLOWEDIN => [qw(  bleic  )],
+        },
+        d => {
+            SIGNATURE => 'd(k2)',
+            CALLARG => '$P(d)',
+            ALLOWEDIN => [qw(  bleic  )],
+        },
+#        WGHTS => {
+#            SIGNATURE => 'wghts(m)',
+#            CALLARG => '$P(wghts)',
+#            ALLOWEDIN => [qw(  blec  )],
+#        },
+    };
+
+    my $levmar_routine_description = {
+        none => { ARGS => [] },
+        bc => {  ARGS =>  [qw( lb ub )] },
+        lec => {  ARGS => [ 'A',  'b', '$SIZE(k)' ],
+                  REQR =>  { '$SIZE(k)' => 'A' },
+              },
+        blec => {  ARGS =>  [ 'lb', 'ub',  'A', 'b' , '$SIZE(k)' ],
+                   REQR =>  { '$SIZE(k)' => 'A' },
+               },
+        bleic => {  ARGS =>  [ 'lb', 'ub', 'A', 'b', '$SIZE(k)',  'C', 'd', '$SIZE(k2)' ],
+                    REQR =>  { '$SIZE(k)' => 'A', '$SIZE(k2)' => 'C' },
+                }
+    };
+
+
+    my %arg_combs_analysis =();
+        # These are intended to be legal constraint combinations
+    # result should also be used to check if a call is legal
+    # This should make all leval combinations
+    my $arg_combs = [];
+    foreach my $linear ( [ ] , [ 'A', 'b' ] ) {
+        foreach my $box ( [ ] , [ 'lb', 'ub' ] , [ 'lb' ], [ 'ub' ] ) {
+            foreach my $ineq ( [ ] , [ 'C', 'd' ] ) {
+               push @$arg_combs, [ @$box, @$linear, @$ineq ];
+            }
+        }
+    }
+    foreach my $arg_comb ( @$arg_combs ) {
+        my $levmar_funtion_name = find_levmar_func_name_from_args( $arg_comb, $arg_descr );
+        my $comb_key = make_hash_key_from_arg_comb( $arg_comb );
+        my $constraint_signature = make_constraint_signature( $arg_comb, $arg_descr );
+        my $call_args = make_constraint_call_args( $arg_comb, $arg_descr,
+                                                   $levmar_routine_description, $levmar_funtion_name );
+        $arg_combs_analysis{$comb_key} = {
+            LEVMAR_FUNCTION_NAME => $levmar_funtion_name,
+            ARG_COMB => [ @$arg_comb ],
+            SIGNATURE => $constraint_signature,
+            CALLARGS => $call_args,
+            PDL_FUNC_NAME_DER => make_pdl_levmar_func_name_from_strings($comb_key, 'der'),
+            PDL_FUNC_NAME_DIFF => make_pdl_levmar_func_name_from_strings($comb_key, 'diff'),
+        };
+    }
+#    print Dumper(%arg_combs_analysis);
+    return \%arg_combs_analysis;
+}
+
+# for testing. This replaces the pdl pp_def sub
+
+sub disable_ppdef {
+    my $name = shift;
+    my %ppdef = @_;
+    $ppdef{NAME} = $name;
+    print Dumper(\%ppdef);
+}
+
+sub write_pp_defs {
+    my ($arg_combs_analysis) = @_;
     foreach my $der ( 'analytic', 'numeric' ) {
-	foreach my $con ( 'none', 'bc', 'lec' ) {
-	    my $h = {};
+#	foreach my $con ( 'none', 'bc', 'lec', 'blec', 'bleic','blic','leic','lic' ) {
+        foreach my $argcomb ( keys %$arg_combs_analysis ) {
+            # passing workspace is broken for some routines, so...
+            my $arg_anal = $arg_combs_analysis->{$argcomb};
+	    my $h = {NOWORK => 0}; # default
 	    if ($der eq 'analytic') { # analytic derivative
-		$h->{NAME} = 'analytic';
 		$h->{OPAR} = ' IV jacn; IV sjacn; ';
 		$h->{CALL} = 'der';
 		$h->{ARG} = '$TFD(tsjacn, tjacn),';
                 $h->{DUMI}= 'void * tjacn = (void *) $COMP(jacn);
                              void * tsjacn = (void *) $COMP(sjacn);';
-
                 $h->{WORKFAC} = 2;    # needs less workspace than numeric
 	    }
 	    else { # numeric derivative
-		$h->{NAME} = 'difference';
 		$h->{OPAR} = '';
 		$h->{CALL} = 'dif';
 		$h->{ARG} = '';
                 $h->{DUMI}= '';
-                $h->{WORKFAC} = 3;
+                $h->{WORKFAC} = 4;
 	    }
-	    if ( $con eq 'bc' ) { # box constraints
-		$h->{SIG} =  ' lb(m); ub(m); ';
-		$h->{ARG2} = ' $P(lb),$P(ub),';
-		$h->{CALL} = 'bc_' . $h->{CALL};
-		$h->{NAME} = 'bc_' . $h->{NAME};
-	    }
-	    elsif ( $con eq 'lec' ) { # box constraints
-		$h->{SIG} =  ' A(m,k); b(k); ';
-		$h->{ARG2} =  ' $P(A),$P(b),$SIZE(k),';
-		$h->{CALL} = 'lec_' . $h->{CALL};
-		$h->{NAME} = 'lec_' . $h->{NAME};
-	    }
-	    else { # no constraints
-		$h->{SIG} =  '';
-		$h->{ARG2} =  '';
-	    }
-	    pp_def( "levmar_$h->{NAME}",
+            $h->{SIG} = $arg_anal->{SIGNATURE} . '; ' ;
+            $h->{ARG2} = $arg_anal->{CALLARGS};
+            if ($arg_anal->{LEVMAR_FUNCTION_NAME} eq 'bleic' ) {
+                $h->{NOWORK} = 1;
+            }
+            my $funcname = '';
+            $funcname = $arg_anal->{LEVMAR_FUNCTION_NAME} unless $arg_anal->{LEVMAR_FUNCTION_NAME} eq 'none';
+            $h->{CALL} = $funcname . '_' . $h->{CALL} unless $arg_anal->{LEVMAR_FUNCTION_NAME} eq 'none';
+            if ($arg_anal->{LEVMAR_FUNCTION_NAME} eq 'blec' ) {
+                 $h->{SIG} .= 'wghts(m); ';
+                 $h->{ARG2} .= '$P(wghts), ';    
+            }
+            my $pdl_func_name;
+            $pdl_func_name = $arg_anal->{PDL_FUNC_NAME_DER} if $der eq 'analytic';
+            $pdl_func_name = $arg_anal->{PDL_FUNC_NAME_DIFF} if $der eq 'numeric';
+	    pp_def( $pdl_func_name,
                    Pars => " p(m);  x(n);  t(nt); $h->{SIG} int iopts(in);  opts(nopt); [t] work(wn);
 	                [o] covar(m,m) ; int [o] returnval();
-                        [o] pout(m);  [o] info(q=9); ",
+                        [o] pout(m);  [o] info(q=10); ",
 	          OtherPars => " IV funcn; IV sfuncn;  $h->{OPAR} IV indat; "
                           . " int want_covar;  ",
                   RedoDimsCode => "
@@ -1655,6 +1993,7 @@ sub levmar_chkjac {
                      void * tfuncn = (void *) \$COMP(funcn);
                      void * tsfuncn = (void *) \$COMP(sfuncn);
                      \$GENERIC(covar) * pcovar;
+                     \$GENERIC(work) * pwork;
                      $h->{DUMI};
                      DFP *dat = (void *) \$COMP(indat);
                      DFP_check( &dat, \$TFD(PDL_F,PDL_D), \$SIZE(m), \$SIZE(n),
@@ -1666,16 +2005,39 @@ sub levmar_chkjac {
                          iopts = \$P(iopts);
                          if ( \$COMP(want_covar) == 1 ) pcovar = \$P(covar);
                          else pcovar = NULL; 
+                         if ( $h->{NOWORK} == 1 )  pwork = NULL;
+                         else pwork =  \$P(work);
                          maxits = iopts[0]; /* for clarity. we hope optimized away  */
          	   \$returnval() = \$TFD(slevmar_$h->{CALL},dlevmar_$h->{CALL}) (
                       \$TFD(tsfuncn,tfuncn) , $h->{ARG}
                       \$P(pout), \$P(x),  \$SIZE(m), \$SIZE(n), $h->{ARG2}
-         	      maxits, \$P(opts), \$P(info), \$P(work), pcovar , dat);
+         	      maxits, \$P(opts), \$P(info), pwork, pcovar, dat);
+           /*     maxits, \$P(opts), \$P(info), \$P(work), pcovar , dat);     */
                 %}
-           "
+               "
 	    );
 	}
     }
+}
+
+# same routine defined above, but in Levmar.pm code
+sub make_pdl_levmar_func_key {
+    my ($arg_str, $deriv_type) = @_;
+    return  $deriv_type . '_' . $arg_str;
+}
+
+
+
+sub make_pdl_levmar_func_name_from_strings {
+    my ($arg_str, $deriv_type) = @_;
+    return  'levmar_' . make_pdl_levmar_func_key($arg_str, $deriv_type);
+}
+
+
+my $a  = make_argument_combinations();
+write_pp_defs($a);
+
+
 
 =pod
 

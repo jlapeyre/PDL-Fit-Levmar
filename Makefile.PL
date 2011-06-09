@@ -4,11 +4,11 @@ use ExtUtils::MakeMaker;
 use Carp;
 PDL::Core::Dev->import();
 
-$VERSION = "0.0087"; # Func/Makefile.PL relies on this!
+$VERSION = "0.0088"; # Func/Makefile.PL relies on this!
 
-$levmarsrc = "./levmar-2.1.3";
-$lmpackage = ["levmar.pd", Levmar, PDL::Fit::Levmar];
-%hash = pdlpp_stdargs($lmpackage);
+my $levmarsrc = "./levmar-2.5";
+my $lmpackage = ["levmar.pd", Levmar, PDL::Fit::Levmar];
+my %hash = pdlpp_stdargs($lmpackage);
 $hash{VERSION}  = $VERSION;
 $hash{INC} .= " -I $levmarsrc";
 
@@ -25,14 +25,14 @@ $hash{LIBS} = [ ' -lm  -llapack -lblas '];
 
 $hash{DIR} = [ 'Func' ];
 $hash{DEFINE} = " -DHAVE_LAPACK ";
-foreach my $f (qw( lm Axb misc lmlec lmbc ) ){
+foreach my $f (qw( lm Axb misc lmlec lmbc lmblec lmbleic ) ){
     $hash{OBJECT} .= " $levmarsrc/$f\$(OBJ_EXT) ";
 }
 $hash{clean} = {FILES => $hash{clean}->{FILES} . " " . $hash{OBJECT} .
 		" *.o *.so  Levmar.html " };
 
-#$hash{OPTIMIZE} = " -O3 --unroll-loops "; # doubt that this helps; from levmar src
-$hash{OPTIMIZE} = " -O2  ";
+$hash{OPTIMIZE} = " -O3 --unroll-loops ";  # from levmar src Makefile
+#$hash{OPTIMIZE} = " -O2  ";
 
 {
 # This should be done more elegantly
@@ -41,11 +41,14 @@ $hash{OPTIMIZE} = " -O2  ";
 sub MY::postamble {
 "
 
-$s/lm\$(OBJ_EXT): $s/lm.c $s/lm_core.c $s/lm.h $s/misc.h
-$s/Axb\$(OBJ_EXT): $s/Axb.c $s/Axb_core.c $s/lm.h $s/misc.h
-$s/misc\$(OBJ_EXT): $s/misc.c $s/misc_core.c $s/lm.h $s/misc.h
-$s/lmlec\$(OBJ_EXT): $s/lmlec.c $s/lmlec_core.c $s/lm.h $s/misc.h
-$s/lmbc\$(OBJ_EXT): $s/lmbc.c $s/lmbc_core.c $s/lm.h $s/misc.h
+$s/lm\$(OBJ_EXT): $s/lm.c $s/lm_core.c $s/levmar.h $s/misc.h
+$s/Axb\$(OBJ_EXT): $s/Axb.c $s/Axb_core.c $s/levmar.h $s/misc.h
+$s/misc\$(OBJ_EXT): $s/misc.c $s/misc_core.c $s/levmar.h $s/misc.h
+$s/lmlec\$(OBJ_EXT): $s/lmlec.c $s/lmlec_core.c $s/levmar.h $s/misc.h
+$s/lmblec\$(OBJ_EXT): $s/lmblec.c $s/lmblec_core.c $s/levmar.h $s/misc.h
+$s/lmbleic\$(OBJ_EXT): $s/lmbleic.c $s/lmbleic_core.c $s/levmar.h $s/misc.h
+$s/lmbc\$(OBJ_EXT): $s/lmbc.c $s/lmbc_core.c $s/levmar.h $s/misc.h
+
 
 Levmar.xs: pdlperlfunc\$(OBJ_EXT)
 

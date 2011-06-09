@@ -23,17 +23,23 @@ $not_ok_count = 0;
 
 sub tapprox {
         my($a,$b) = @_;
-        my $c = abs(topdl($a)-topdl($b));
+        $a = topdl($a);
+        $b = topdl($b);  
+        my $c = abs($a -$b);
         my $d = max($c);
-	print "# tapprox: $a, $b\n";
+#	print "# tapprox: $a, $b : max diff ";
+#        printf "%e\n",$d;
         $d < 0.0001;
 }
 
 sub tapprox_cruder {
         my($a,$b) = @_;
-        my $c = abs(topdl($a)-topdl($b));
+        $a = topdl($a);
+        $b = topdl($b);  
+        my $c = abs($a -$b);        
         my $d = max($c);
-	print "# tapprox: $a, $b\n";
+#	print "# tapprox_cruder: $a, $b : max diff ";
+#        printf "%e\n",$d;
         $d < 0.0005;
 }
 
@@ -107,7 +113,7 @@ sub rosenbrock {
     ok(levmar_report($h1) eq levmar_report($h2), "Rosenbrock  csrc == def");
     my $h3 = levmar($p,$x, FUNC => $rf, JFUNC => $rderiv, @opts, DERIVATIVE => 'analytic',@g);
     check_type($h3->{INFO});
-    ok ( tapprox($h2->{P},$h3->{P}), "Rosenbrock  perl sub == def");
+    ok ( tapprox_cruder($h2->{P},$h3->{P}), "Rosenbrock  perl sub == def");
 
 
 } 
@@ -269,8 +275,8 @@ my $defst = '
        my ($p,$d,$t) = @_;
        my ($p0,$p1) = list $p;
    };
-    my $p = pdl $Type, [ 3, 1];
-    my $x = pdl $Type, [ 0, 0];
+   my $p = pdl $Type, [ 3, 1];
+   my $x = pdl $Type, [ 0, 0];
 
 # Because this function results in some overflow values (see levmar_report),
 # There is a difference between letting cc cast ints to FLOATs above
@@ -407,35 +413,223 @@ my $defst = '
           $h1->{P} . "   " .  $correct_minimum );
 
    
-
-=pod
-
-   my $p2 = $p->copy;
-   my $h2 = levmar($p2,$x, FUNC => $h1->{FUNC}, A => $A, B => $b, @opts, DERIVATIVE => 'numeric' );
-   ok(tapprox($h2->{P},$correct_minimum), "Boggs Tolle, numeric");
    my $p3 = $p->copy;
    my $h3 = levmar($p3,$x, FUNC => $h1->{FUNC} , A => $A, B => 7, @opts, DERIVATIVE => 'numeric' );
    ok(tapprox($h3->{RET} , -1), "Boggs Tolle, catch error in inputs");
-   my $p4 = $p->copy;
-
-   my $h4 = levmar($p4,$x, FUNC => $defst, A => $A, B => $b, @opts );
-   ok(tapprox($h4->{P},$correct_minimum), "Boggs Tolle, def  # TODO");
 
 
-   my $p5 = $p->copy;
-   my $h5 = levmar($p5,$x, FUNC => $pf, JFUNC=> $pd,
-                       A => $A, B => $b, @opts, DERIVATIVE =>'numeric' );
-   ok(tapprox($h5->{P},$correct_minimum), "Boggs Tolle perl sub, numeric");
-
-   my $p6 = $p->copy;
-   my $h6 = levmar($p6,$x, FUNC => $pf, JFUNC=> $pd,
-                       A => $A, B => $b, @opts );
-   ok(tapprox($h6->{P},$correct_minimum), "Boggs Tolle perl sub, analytic");
+#   my $p4 = $p->copy;
+#   my $h4 = levmar($p4,$x, FUNC => $defst, A => $A, B => $b, @opts );
+#   ok(tapprox($h4->{P},$correct_minimum), "Boggs Tolle, def  # TODO");
 
 
-=cut
+
+#   my $p5 = $p->copy;
+#   my $h5 = levmar($p5,$x, FUNC => $pf, JFUNC=> $pd,
+#                       A => $A, B => $b, @opts, DERIVATIVE =>'numeric' );
+#   ok(tapprox($h5->{P},$correct_minimum), "Boggs Tolle perl sub, numeric");
+
+   
+#   my $p6 = $p->copy;
+#   my $h6 = levmar($p6,$x, FUNC => $pf, JFUNC=> $pd,
+#                       A => $A, B => $b, @opts );
+#   ok(tapprox($h6->{P},$correct_minimum), "Boggs Tolle perl sub, analytic");
+
+   
+#   my $p2 = $p->copy;
+#   my $h2 = levmar($p2,$x, FUNC => $h1->{FUNC}, A => $A, B => $b, @opts, DERIVATIVE => 'numeric' );
+#   ok(tapprox($h2->{P},$correct_minimum), "Boggs Tolle, numeric");
+
  
 }
+
+
+sub hock_schittkowski {
+
+   my $csrc = '
+    
+    void mod1hs52(FLOAT *p, FLOAT *x, int m, int n, void *data)
+{
+  x[0]=4.0*p[0]-p[1];
+  x[1]=p[1]+p[2]-2.0;
+  x[2]=p[3]-1.0;
+  x[3]=p[4]-1.0;
+}
+
+void jacmod1hs52(FLOAT *p, FLOAT *jac, int m, int n, void *data)
+{
+register int j=0;
+
+  jac[j++]=4.0;
+  jac[j++]=-1.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+
+  jac[j++]=0.0;
+  jac[j++]=1.0;
+  jac[j++]=1.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=1.0;
+  jac[j++]=0.0;
+
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=1.0;
+}
+';
+    
+    my $p = pdl $Type, [ 2, 2, 2, 2, 2];
+    my $x = pdl $Type, [ 0, 0, 0, 0];
+    my $A = pdl $Type, [
+        [ 1, 3, 0, 0,  0],
+        [ 0, 0, 1, 1, -2],
+        [ 0, 1, 0, 0, -1]
+    ];
+    my $b = pdl $Type, [ 0, 0, 0 ];
+
+    my $dmax = PDL::Fit::Levmar::get_dbl_max();    
+    my $lb = pdl $Type, [-0.09, 0.0, -$dmax, -0.2, 0.0];
+    
+    my $ub = pdl $Type, [ $dmax, 0.3, ,0.25, 0.3, 0.3 ];
+    my $weights = pdl $Type, [2000.0, 2000.0, 2000.0, 2000.0, 2000.0];
+    my @opts = ( MAXITS => 5000 );
+    my $h = levmar($p,$x, $csrc, A => $A, B => $b , WGHTS => $weights, UB => $ub, LB => $lb,  @opts );
+#    print levmar_report($h);
+#    exit(0);
+}
+
+sub hock_schittkowski_mod2_52 {
+ #   Hock - Schittkowski modified #2 problem 52 
+
+  my $csrc = '
+void mod2hs52(double *p, double *x, int m, int n, void *data)
+{
+  x[0]=4.0*p[0]-p[1];
+  x[1]=p[1]+p[2]-2.0;
+  x[2]=p[3]-1.0;
+  x[3]=p[4]-1.0;
+  x[4]=p[0]-0.5;
+}
+
+void jacmod2hs52(double *p, double *jac, int m, int n, void *data)
+{
+register int j=0;
+
+  jac[j++]=4.0;
+  jac[j++]=-1.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+
+  jac[j++]=0.0;
+  jac[j++]=1.0;
+  jac[j++]=1.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=1.0;
+  jac[j++]=0.0;
+
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=1.0;
+
+  jac[j++]=1.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+}
+     ';
+    
+    my $p = pdl $Type, [ 2, 2, 2, 2, 2];
+    my $x = pdl $Type, [ 0, 0, 0, 0, 0];
+
+    my $C = pdl $Type, [
+        [ 1, 3, 0, 0,  0],
+        [ 0, 0, 1, 1, -2],
+        [ 0, -1, 0, 0, 1]
+    ];
+    my $d = pdl $Type, [ -1, -2,  -7 ];
+
+    my @opts = ( MAXITS => 1000 );
+    my $h = levmar($p,$x, $csrc, C => $C, D => $d ,  @opts );
+    ok(tapprox($h->{P},[0.5, 2, -1.301625e-12, 1, 1 ]), "Hock - Schittkowski modified #2 problem 52 ");
+    #    print levmar_report($h);
+}
+
+sub hock_schittkowski_mod_76 {
+#  /* Hock - Schittkowski modified problem 76 */
+
+ my $csrc = '
+
+#include <math.h>
+#include <stdio.h>
+void modhs76(double *p, double *x, int m, int n, void *data)
+{
+  x[0]=p[0];
+  x[1]=sqrt(0.5)*p[1];
+  x[2]=p[2];
+  x[3]=sqrt(0.5)*p[3];
+}
+
+void jacmodhs76(double *p, double *jac, int m, int n, void *data)
+{
+register int j=0;
+
+  jac[j++]=1.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+
+  jac[j++]=0.0;
+  jac[j++]=sqrt(0.5);
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=1.0;
+  jac[j++]=0.0;
+
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=0.0;
+  jac[j++]=sqrt(0.5);
+}
+';
+    
+    my $p = pdl $Type, [ 0.5, 0.5, 0.5, 0.5 ];
+    my $x = pdl $Type, [ 0, 0, 0, 0 ];
+    my $A = pdl $Type, [
+        [ 0, 1, 4, 0 ]
+    ];
+    my $b = pdl $Type, [ 1.5 ];
+    my $C = pdl $Type, [
+        [ -1, -2, -1, -1],
+        [ -3, -1, -2,  1]
+    ];
+    my $d = pdl $Type, [ -5, -0.4];
+    my $lb = pdl $Type, [ 0, 0, 0, 0];
+    my @opts = ( MAXITS => 1000 );
+    my $h = levmar($p,$x, $csrc, C => $C, D => $d , A => $A, B => $b,
+                LB => $lb,  @opts );
+    print levmar_report($h);
+}
+
 
 #-------------------------------------------------
 # Hatfld b
@@ -588,10 +782,13 @@ my $defst = '
 
 
 
-print "1..24\n";
+print "1..27\n";
 
 print "# type double\n";
 $Type = double;
+hock_schittkowski_mod_76();
+hock_schittkowski_mod2_52();
+hock_schittkowski();
 rosenbrock();
 modified_rosenbrock();
 powell();

@@ -363,7 +363,7 @@ sub make_ccode {
 #	if ( /^\s*void\s+([\w]+)/ )
 #	deb $floatcode;
 	$floatcode =~ s/$funcname/s$funcname/;
-	$floatcode =~ s/$jacname/s$jacname/ if defined $jacname;
+	$floatcode =~ s/$jacname/s$jacname/;
 #	deb $floatcode;
 	$self->{CCODE} = 
 "
@@ -459,7 +459,7 @@ sub make_shared_object_file {
     my $sobjn = $self->{SONAME};
     my $fname = $self->{FNAME};
     if ( $i > $max ){
-	die "Tried too many names. I don't think you want this ...";
+	die 'Too many files in '. $self->{DIR} . ' try cleaning.';
     }
     elsif ($i > 0) {
 	if ( rename($srcn1,$srcn) == 0 ) {

@@ -6,6 +6,9 @@ use PDL::NiceSlice;
 use PDL::Core ':Internal'; # For topdl()
 
 use strict;
+
+# Checks doing a multidimensional fit.
+
 use vars ( '$testno', '$ok_count', '$not_ok_count', '@g', '$Gf',
 	   '$Gh', '$Type');
 
@@ -20,6 +23,8 @@ sub tapprox {
 	$eps = 0.0001 unless defined $eps;
         my $c = abs(topdl($a)-topdl($b));
         my $d = max($c);
+       	print "# tapprox: $a, $b : max diff ";
+        printf "%e\n",$d;
         $d < $eps;
 }
 
@@ -53,8 +58,8 @@ sub dimst {
     return  "(" . join(',',$x->dims) . ")";
 }
 
-sub deb  { print STDERR $_[0],"\n" }
-sub cpr  { print $_[0],"\n" }
+#sub deb  { print STDERR $_[0],"\n" }
+#sub cpr  { print $_[0],"\n" }
 
 sub gauss2d {
     my ($p,$xin,$t) = @_;

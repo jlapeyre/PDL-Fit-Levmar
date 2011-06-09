@@ -16,6 +16,6 @@ refblas3-dev   Basic Linear Algebra Subroutines 3, static library
 # The following is a dependency of lapack3-dev, and refblas3-dev
 (libg2c0-dev GNU Fortran 77 library development)
 
-These libraries are used in building upstream levmar library. There
+These libraries are used in building the upstream levmar library. There
 are other options for providing the lapack and blas routines. If you
 use these other libraries, you have to edit Makefile.PL

@@ -25,7 +25,8 @@ end jacobian
 
 ';
 
-$h = levmar($p,$x,$t, FUNC => $st, MAXITS => 10000, NOCLEAN => 1);
+$h = levmar($p,$x,$t, FUNC => $st, MAXITS => 1000, NOCLEAN => 1);
+
 print levmar_report($h);
 
 
