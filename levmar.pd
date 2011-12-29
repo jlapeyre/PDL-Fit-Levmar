@@ -55,6 +55,9 @@ Don't confuse this module with, but see also,  L<PDL::Fit::LM>.
 
 A number of examples of invocations of C<levmar> follow. The test
 directory C<./t> in the module distribution contains many more examples.
+The following seven examples are included as stand-alone scripts in the
+./examples/ directory. Some of the necessary lines are not repeated in
+each example below.
 
 =over 3
 
@@ -64,9 +67,10 @@ In this example we fill co-ordinate $t and ordinate $x arrays
 with 100 pairs of sample data. Then we call the fit routine
 with initial guesses of the parameters.
 
+ use PDL;
  use PDL::Fit::Levmar;
- use PDL::Fit::Levmar::Func;
-
+ use PDL::NiceSlice;
+ 
  $n = 100;
  $t = 10 * (sequence($n)/$n -1/2);
  $x = 3 * exp(-$t*$t * .3  );
@@ -98,6 +102,8 @@ This example gives the output:
  number of function evaluations	= 20
  number of jacobian evaluations	= 2
 
+In the example above and all following examples, it is necessary
+to include the three C<use> statements at the top of the file.
 The fit function in this example is in C<lpp> code.
 The parameter pdl $p is the input parameters (guesses)
 levmar returns a hash with several elements including a

@@ -205,7 +205,7 @@ sub new {
       if ( exists $self->{$_} ) {
 	  $self->{$_} = $opts->{$_};
       }	  
-      else { die "Unrecognized option to Levmar::Func '$_'";}
+      else { die "Levmar::Func::new: Unrecognized option to Levmar::Func '$_'";}
   }
   return bless $self,$class;
 }
@@ -222,28 +222,28 @@ sub DESTROY {
     if ( defined $self->{LIBHANDLE}) { 
 	my ($ret, $err) = close_shared_object_file($self->{LIBHANDLE});
 	if ( $err ne '' or $ret != 0) {
-	    warn "Func::DESTROY: Error closing function library:$ret '$err'";
+	    warn "Levmar::Func::DESTROY: Error closing function library:$ret '$err'";
 	}
 	warn "Error closing function library:$ret '$err'" if  $ret != 0;
 	if ( defined $self->{JPOINTER} ) { # call close twice because we got two symbols
 	    ($ret, $err) = close_shared_object_file($self->{LIBHANDLE});
 	    warn "Error closing function library:$ret '$err'" if $ret !=0 ;
 	    if ( $err ne '' or $ret != 0 ) {
-		warn "Func::DESTROY: Error closing function library:$ret '$err'";
+		warn "Levmar::Func::DESTROY: Error closing function library:$ret '$err'";
 	    }
 	}
 	if ( defined $self->{SJPOINTER} ) { # call close twice because we got two symbols
 	    ($ret, $err) = close_shared_object_file($self->{LIBHANDLE});
 	    warn "Error closing function library:$ret '$err'" if $ret !=0 ;
 	    if ( $err ne '' or $ret != 0 ) {
-		warn "Func::DESTROY: Error closing function library:$ret '$err'";
+		warn "Levmar::Func::DESTROY: Error closing function library:$ret '$err'";
 	    }
 	}
 	if ( defined $self->{SFPOINTER} ) { # call close twice because we got two symbols
 	    ($ret, $err) = close_shared_object_file($self->{LIBHANDLE});
 	    warn "Error closing function library:$ret '$err'" if $ret !=0 ;
 	    if ( $err ne '' or $ret != 0 ) {
-		warn "Func::DESTROY: Error closing function library:$ret '$err'";
+		warn "Levmar::Func::DESTROY: Error closing function library:$ret '$err'";
 	    }
 	}
     }
@@ -252,15 +252,15 @@ sub DESTROY {
 	    my $fn = $self->{$k};
 	    if (-e $fn) {
 		if ( not -f $fn ) {
-		    warn "Func::DESTROY: Refusing to remove non-file '$fn'";
+		    warn "Levmar::Func::DESTROY: Refusing to remove non-file '$fn'";
 		}
 		else {
 		    $cnt  = munlink $fn;
 		    if ( $cnt < 1 ) {
-			warn "Func::DESTROY: failed removing '$fn' (lib probably open)";
+			warn "Levmar::Func::DESTROY: failed removing '$fn' (lib probably open)";
 		    }
 		    else {
-#			warn "Func::DESTROY: SUCCESS removing '$fn'";
+#			warn "Levmar::Func::DESTROY: SUCCESS removing '$fn'";
 		    }
 		}
 	    }
@@ -276,17 +276,17 @@ sub levmar_func { my $self = new PDL::Fit::Levmar::Func(@_);
 		  }
 		  else {
 		      if ( not defined $self->{FUNC}  and not defined $self->{CSRC} ) {
-			  die "lemar_func: neither FUNC nor CSRC defined";
+			  die "Levmar::Func::lemar_func: neither FUNC nor CSRC defined";
 		      }
 		      @err = $self->make_ccode();
 		      return @err if $err[0] == -1;
 		      $self->make_build_names();
 		      $self->write_ccode();
 		      if ( not $self->make_shared_object_file() ) {
-			  die "levmar_func: Compilation failed.";
+			  die "Levmar::Func::levmar_func: Compilation failed.";
 		      }
 		      if ( not $self->load_fit_library() ) {
-			  die "levmar_func: Loading dynamic library failed.";
+			  die "Levmar::Func::levmar_func: Loading dynamic library failed.";
 		      }
 		      $self->clean_files() unless defined $self->{NOCLEAN};
 		  }
@@ -295,7 +295,7 @@ sub levmar_func { my $self = new PDL::Fit::Levmar::Func(@_);
 			  $self->{NOSO} = 1;
 		      }
 		      else {
-			  die " option JFUNC must be a ref to a perl sub";
+			  die "Levmar::Func::levmar_func option JFUNC must be a ref to a perl sub";
 		      }
 		  }
 		  return $self;
@@ -304,11 +304,11 @@ sub levmar_func { my $self = new PDL::Fit::Levmar::Func(@_);
 
 sub make_build_names {
     my $self = shift;
-    die "levmar_func:  no name for function"
+    die "Levmar::Func::levmar_func:  no name for function"
 	unless defined $self->{NAME};
     my $q = $self->{DIR};
     if ( not -d $q ) {
-	die "levmar_func: Can't make directory (folder) '$q'"
+	die "Levmar::Func::levmar_func: Can't make directory (folder) '$q'"
 	    unless File::Path::mkpath( $q );
     }
     $self->{FNAME} = $self->{NAME} unless exists $self->{FNAME}; # base file name
@@ -351,7 +351,7 @@ sub make_ccode {
 	    my $cf = $self->{CSRC};
 	    local (*CHAND);
 	    local $/; 
-	    open CHAND, "<$cf" or die "Can't open C src file '$cf'";
+	    open CHAND, "<$cf" or die "Levmar::Func::make_code : Can't open C src file '$cf'";
 	    $self->{CCODE} = <CHAND>;
 	    close(CHAND);
 	}
@@ -363,7 +363,7 @@ sub make_ccode {
 #	if ( /^\s*void\s+([\w]+)/ )
 #	deb $floatcode;
 	$floatcode =~ s/$funcname/s$funcname/;
-	$floatcode =~ s/$jacname/s$jacname/;
+	$floatcode =~ s/$jacname/s$jacname/ if defined $jacname and $jacname ne ''; # gjl Dec 2011
 #	deb $floatcode;
 	$self->{CCODE} = 
 "
@@ -382,7 +382,7 @@ sub make_ccode {
 	if ($st =~ /$LPPEXT$/o) {  # file, not string
 	    local (*FUNCHAND);
 	    local $/; 
-	    open FUNCHAND, "<$st" or die "Can't open def file '$st'";
+	    open FUNCHAND, "<$st" or die "Levmar::Func::make_ccode : Can't open def file '$st'";
 	    $st = <FUNCHAND>;
 	    close(FUNCHAND);
 	}
@@ -420,8 +420,8 @@ sub get_funcs_from_c {
 	    }
 	}
     }
-    if ( not defined $fname ) { # ok if jacname == undef
-	die "Can't find function name from c code";
+    if ( not defined $fname or $fname eq '' ) { # ok if jacname == undef
+	die "Levmar::Func::get_funcs_from_c : Can't find function name from c code";
     }
     return ($fname, $jacname);
 }
@@ -431,10 +431,10 @@ sub write_ccode {
     local (*CCODEH);
     return unless exists $self->{CCODE};
     if ( not defined $self->{NAME} ) {
-	die "Can't write C code for function with no name";
+	die "Levmar::Func::write_ccode : Can't write C code for function with no name";
     }
     my $srcn = $self->{SRCNAME};
-    open CCODEH, ">$srcn" or die "Can't open C source file '$srcn' for writing";
+    open CCODEH, ">$srcn" or die "Levmar::Func::write_ccode : Can't open C source file '$srcn' for writing";
     print CCODEH $self->{CCODE};
     close CCODEH;
 }
@@ -445,13 +445,13 @@ sub make_shared_object_file {
     my $srcn1 = $self->{SRCNAME};
     my $fname1 = $self->{FNAME};
     my $i = 0;
-    my $max = 20;
+    my $max = 20; # allow $max renamed files
     while ( -f $self->{SONAME} ) { # this is important to avoid user side bugs
 	$i++;
 	my $so = $self->{SONAME};
 	$self->{FNAME} = $fname1 . $i;
 	$self->make_build_names();
-#	warn "$so exists. Trying " . $self->{SONAME};
+#	warn "Levmar::Func::make_shared_object_file: $so exists. Trying " . $self->{SONAME};
 	last if $i > $max;
     }
     my $srcn = $self->{SRCNAME};
@@ -459,26 +459,28 @@ sub make_shared_object_file {
     my $sobjn = $self->{SONAME};
     my $fname = $self->{FNAME};
     if ( $i > $max ){
-	die 'Too many files in '. $self->{DIR} . ' try cleaning.';
+	die 'Levmar::Func::make_shared_object_file: Too many renamed files in '. $self->{DIR} . ' try cleaning.';
     }
     elsif ($i > 0) {
 	if ( rename($srcn1,$srcn) == 0 ) {
-	    die "Failed to rename $srcn1 to $srcn";
+	    die "Levmar::Func::make_shared_object_file: Faile to rename $srcn1 to $srcn";
 	}
     }
     my $mkobjstr = $self->{MKOBJ} ." -o $objn  $srcn";
     $ret = do_system( $mkobjstr); # compile c to o
-#    deb " compile returned '$ret'";
-    if ( $ret != 0) { # zero is success, i guess
-	warn "Compiling '$srcn' failed.";
+#    deb "Levmar::Func::make_shared_object_file: compile returned '$ret'";
+    if ( $ret != 0) { # zero is success
+	warn "Levmar::Func::make_shared_object_file: Compiling '$srcn' failed.";
 	return 0;
     }
     $self->{MKOBJSTR} = $mkobjstr;
     my $sostr = $self->{MKSO};
     $sostr =~ s/\%s/$sobjn/g;
     $sostr =~ s/\%o/$objn/g;
-    if ( 0 != do_system( $sostr ) ) { # make so from o
-	warn "Making shared library '$sobjn' failed.";
+    $ret = do_system( $sostr ); #  make so from o
+#    deb "Levmar::Func::make_shared_object_file: '$sostr'  make so from o returned '$ret'";   
+    if ( 0 != $ret ) {
+	warn "Levmar::Func::make_shared_object_file: Making shared library '$sobjn' failed.";
 	return 0;
     }
     $self->{SOSTR} = $sostr;
@@ -528,29 +530,29 @@ sub clean_files {
 	my $fn = $self->mfqp($k);
 	if (-e $fn) {
 	    if ( not -f $fn ) {
-		warn "Object file '$fn' not a file. Not deleting";
+		warn "Levmar::Func::clean_files : Object file '$fn' not a file. Not deleting";
 	    }
 	    else {
 		$cnt  = munlink $fn;
 		if ( $cnt < 1) {
-		    warn "cnt $cnt: Failed to delete object file '$fn'";
+		    warn "Levmar::Func::clean_files : cnt $cnt: Failed to delete object file '$fn'";
 		}
 	    }
 	}
     }
     if ( -e $srcn ) {
 	if ( not -f $srcn ) {
-	    warn "Source file '$srcn' not a file. Not deleting";
+	    warn "Levmar::Func::clean_files: Source file '$srcn' not a file. Not deleting";
 	}
 	local (*SRCH);
-	open SRCH, "<$srcn" or die "Can't open C source file '$srcn' for reading";
+	open SRCH, "<$srcn" or die "Levmar::Func::clean_files : Can't open C source file '$srcn' for reading";
 	while (<SRCH>) {
 	    next if /^\s*$/;
 	    if (/\/\* This file Automatically/) {
 		$cnt = 0;
 		$cnt = munlink $srcn;
 		if ( $cnt < 1) {
-		    warn "cnt $cnt: Failed to delete source file '$srcn'";
+		    warn "Levmar::Func::clean_files: cnt $cnt: Failed to delete source file '$srcn'";
 		}
 	    }
 	    last; # only check up to first non-blank line
@@ -567,7 +569,7 @@ sub load_fit_library {
     my $so = $self->mfqp('SONAME');
     my $fn = $self->{NAME};
     my $jn = $self->{JACNAME};
-    die "Can't find dynamic library file '$so'" unless -e $so;
+    die "Levmar::Func::load_fit_library : Can't find dynamic library file '$so'" unless -e $so;
     my ($func_pointer, $jac_pointer, $lib_handle, $error_message)=
 	(0,0,0,0);
     my ($sfunc_pointer, $sjac_pointer) =    # single precision
@@ -577,14 +579,15 @@ sub load_fit_library {
     ($sfunc_pointer, $lib_handle, $error_message) =  # single precision
 	open_and_find($so,'s'.$fn);
     if ( $error_message ne ''  ) { 
-	warn "Failed to load dynamic library '$so' and find fit func '$fn'.\n dlopen:'$error_message'";
+	warn "Levmar::Func::load_fit_library: Failed to load dynamic library '$so'\n".
+          " and find fit func '$fn'.\n dlopen:'$error_message'";
 	return 0;
     }
     if ( defined $jn and $jn ne '') {
 	($jac_pointer, $lib_handle, $error_message) =
 	    open_and_find($so,$jn);
 	if ( $error_message ne ''  ) { 
-	    warn "Failed to load dynamic library '$so' and find jacobian '$jn'.\n".
+	    warn "Levmar::Func::load_fit_library: Failed to load dynamic library '$so' and find jacobian '$jn'.\n".
 		" dlopen:'$error_message' ";
 	}
 	else {
@@ -593,7 +596,7 @@ sub load_fit_library {
 	($sjac_pointer, $lib_handle, $error_message) =
 	    open_and_find($so, 's' . $jn);
 	if ( $error_message ne ''  ) { 
-	    warn "Failed to load dynamic library '$so' and find jacobian '$jn'.\n".
+	    warn "Levmar::Func::load_fit_library: Failed to load dynamic library '$so' and find jacobian '$jn'.\n".
 		" dlopen:'$error_message' ";
 	}
 	else {
@@ -613,6 +616,7 @@ sub load_fit_library {
 ########################################
 # Non-methods below here
 
+# should return 0 on success
 sub do_system {
     my $c = shift;
 #    print STDERR $c,"\n";
@@ -790,7 +794,7 @@ sub generate_C_source {
 		    }
 		}
 		else {
-		    warn "Function type neither 'function' nor 'jacobian'";
+		    warn "Levmar::Func::generate_C_source: Function type neither 'function' nor 'jacobian'";
 		}
 	    }
 	    $kode1 .= join('',@$loop) . $end_loop;
@@ -853,7 +857,7 @@ sub call {
     my ($p,$t) = @_; # pdls
     my $x = zeroes($t);
     if ($self->{FPOINTER} == 0) {
-	warn "No function loaded.";
+	warn "Levmar::Func::call : No function loaded.";
 	return PDL->null;
     }
     _callf(topdl($p),$t,$x, $self->{FPOINTER});
@@ -866,7 +870,7 @@ sub jac_of_t {
     my $self = shift;
     my ($p,$t) = @_; # pdls
     if ($self->{JPOINTER} == 0) {
-	warn "No jacobian function loaded.";
+	warn "Levmar::Func::jac_of_t: No jacobian function loaded.";
 	return PDL->null;
     }
     my @dims = dims($t);
@@ -883,7 +887,7 @@ sub jac_of_t1 {
     my $self = shift;
     my ($p,$t) = @_; # pdls
     if ($self->{JPOINTER} == 0) {
-	warn "No jacobian function loaded.";
+	warn "Levmar::Func::jac_of_t1: No jacobian function loaded.";
 	return PDL->null;
     }
     my @dims = dims($t);

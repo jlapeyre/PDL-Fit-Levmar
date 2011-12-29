@@ -1,3 +1,10 @@
+0.0089
+GJL
+- Fixed bug compiling C source with no jacobian supplied.
+- Added better error/warn messages in Levmar::Func
+- Noticed one test is failing, don't know why.
+- Added ex1.pl, ex2.pl etc. to ./examples. Matching examples in doc.
+
 0.0088
 GJL
  - Upgraded upstream source to levmar 2.5. This fixes some bugs mentioned in

@@ -4,6 +4,13 @@ doc/levmar.pdf
 example.pl
 example_stripped.pl
 examples/levmar_ex.pl
+examples/ex1.pl
+examples/ex2.pl
+examples/ex3.pl
+examples/ex4.pl
+examples/ex5.pl
+examples/ex6.pl
+examples/ex7.pl
 Func/func.h
 Func/func.pd
 Func/getsymbol.c
