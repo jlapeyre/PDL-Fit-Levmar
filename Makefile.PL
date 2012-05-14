@@ -4,7 +4,7 @@ use ExtUtils::MakeMaker;
 use Carp;
 PDL::Core::Dev->import();
 
-$VERSION = "0.0089"; # Func/Makefile.PL relies on this!
+$VERSION = "0.0090"; # Func/Makefile.PL relies on this!
 
 my $levmarsrc = "./levmar-2.5";
 my $lmpackage = ["levmar.pd", Levmar, PDL::Fit::Levmar];
@@ -15,7 +15,7 @@ $hash{INC} .= " -I $levmarsrc";
 # I spent a few hours trying to figure out how to automatically
 # determine how to link lapack and blas. But I had no luck.
 
-$hash{LIBS} = [ ' -lm  -llapack -lblas '];
+$hash{LIBS} = [ ' -L/usr/lib/lapack -lm  -llapack -lblas '];
 
 # These are some other possibilities, eg if f2c (f77) was used to compile lapack
 #' -lm  -llapack -lblas -lf2c ',

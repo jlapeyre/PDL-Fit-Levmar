@@ -1,3 +1,8 @@
+0.0090
+GJL 13-May-2012
+- Default Makefile.PL works with debian. Changes and docs for MKOBJ,
+  MKSO, and CTOP.
+
 0.0089
 GJL
 - Fixed bug compiling C source with no jacobian supplied.

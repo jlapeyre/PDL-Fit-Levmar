@@ -43,15 +43,11 @@ reading the following, refer to L<PDL::Fit::Levmar>.
 
   $hout = PDL::Fit::Levmar::levmar($p,$x,$t,  # fit the data
                FUNCTION => $func,
- );
+	 );
 
 =head1 FUNCTIONS
 
 =head2 levmar_func()
-
-=for usage
-
- levmar_func( OPTIONS )
 
 =for ref
 
@@ -59,27 +55,14 @@ This function creates and links a function, ie, takes a function definition
 and returns a function (object instance) ready for use by levmar.
 see PDL::Fit::Levmar::Func for more information.
 
-OPTIONS:
+=for usage
+
+ levmar_func
+
+=for example
+
 
 =for options
-
- Some of the options are described in the PDL::Fit::Levmar documentation.
-
- MKOBJ  -- command to compile source into object code. This can be set.
-        The default value is determined by the perl installation and can
-        be determined by examining the Levmar::Func object returned by 
-        new or the output hash of a call to levmar. A typical value is
-        cc -c -O2 -fPIC -o %o %c
-
- MKSO   -- command to convert object code to dynamic library code. A typical
-         default value is
-         cc -shared -L/usr/local/lib -fstack-protector %o -o %s
- 
-
- CTOP  --   The value of this string will be written at the top of the c code
-  written by Levmar::Func. This can be used to include headers and so forth.
-  This option is actually set in the Levmar::Func object.
-
 
 =head2 call()
 
@@ -142,7 +125,7 @@ $SO = $Config{so};
 $LPPEXT = '.lpp';
 # string  to compile .c to .o 
 $MKOBJ = $Config{cc} . " -c " . $Config{optimize} . " " .
-    $Config{cccdlflags} . " -o %o %c ";
+    $Config{cccdlflags} . " ";
 
 # string  to compile .o to .so 
 $MKSO = $Config{ld} . " " . $Config{lddlflags} ." %o -o %s ";
@@ -185,7 +168,7 @@ pp_addpm(<<'======EOD_new======');
 
 =for ref
 
-Generic constructor. Use levmar_func rather than new.
+Generic constructor 
 
 =cut
 
@@ -213,11 +196,10 @@ sub new {
 #      TYPE => 'double',
       NOSO => undef,
       CSRC => undef,
-      CTOP => undef,
       DIR =>  "./tempcode" , # where the .so is built
       TESTSYNTAX => undef,
       LIBHANDLE => undef,
-      FVERBOSE => 0,
+      
   };
   foreach ( keys %$opts ) { # replace defaults
       if ( exists $self->{$_} ) {
@@ -453,7 +435,6 @@ sub write_ccode {
     }
     my $srcn = $self->{SRCNAME};
     open CCODEH, ">$srcn" or die "Levmar::Func::write_ccode : Can't open C source file '$srcn' for writing";
-    print CCODEH $self->{CTOP}, "\n" if defined $self->{CTOP};
     print CCODEH $self->{CCODE};
     close CCODEH;
 }
@@ -485,11 +466,8 @@ sub make_shared_object_file {
 	    die "Levmar::Func::make_shared_object_file: Faile to rename $srcn1 to $srcn";
 	}
     }
-#    my $mkobjstr = $self->{MKOBJ} ." -o $objn  $srcn";
-    my $mkobjstr = $self->{MKOBJ};
-    $mkobjstr =~ s/\%c/$srcn/g;
-    $mkobjstr =~ s/\%o/$objn/g;    
-    $ret = do_system($mkobjstr, $self); # compile c to o
+    my $mkobjstr = $self->{MKOBJ} ." -o $objn  $srcn";
+    $ret = do_system( $mkobjstr); # compile c to o
 #    deb "Levmar::Func::make_shared_object_file: compile returned '$ret'";
     if ( $ret != 0) { # zero is success
 	warn "Levmar::Func::make_shared_object_file: Compiling '$srcn' failed.";
@@ -499,7 +477,7 @@ sub make_shared_object_file {
     my $sostr = $self->{MKSO};
     $sostr =~ s/\%s/$sobjn/g;
     $sostr =~ s/\%o/$objn/g;
-    $ret = do_system($sostr, $self); #  make so from o
+    $ret = do_system( $sostr ); #  make so from o
 #    deb "Levmar::Func::make_shared_object_file: '$sostr'  make so from o returned '$ret'";   
     if ( 0 != $ret ) {
 	warn "Levmar::Func::make_shared_object_file: Making shared library '$sobjn' failed.";
@@ -640,8 +618,8 @@ sub load_fit_library {
 
 # should return 0 on success
 sub do_system {
-    my ($c,$f) = @_;
-    print STDERR $c,"\n" if $f->{FVERBOSE};
+    my $c = shift;
+#    print STDERR $c,"\n";
     system $c;
 }
 

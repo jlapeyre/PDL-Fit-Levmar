@@ -375,6 +375,9 @@ pass any more non-hash arguments. The following calls are equivalent
 In the following, if the default value is not mentioned, it is undef.
 C<$outh> refers to the output hash.
 
+Some of these options are actually options to Levmar::Func.
+All options to Levmar::Func may by given in calls to levmar().
+
 =over 4
 
 =item FUNC
@@ -645,6 +648,36 @@ at the current estimate for C<p> and the data.
 
 This is a step size used in computing numeric derivatives. It is
 not used if the analytic jacobian is used.
+
+
+=item MKOBJ
+
+command to compile source into object code. This option is actually set in
+the Levmar::Func object, but can be given in calls to levmar().
+The default value is determined by the perl installation and can
+be determined by examining the Levmar::Func object returned by 
+new or the output hash of a call to levmar. A typical value is
+ cc -c -O2 -fPIC -o %o %c
+
+=item MKSO
+
+command to convert object code to dynamic library code.
+This option is actually set in the Levmar::Func object.  A
+typical default value is
+ cc -shared -L/usr/local/lib -fstack-protector %o -o %s
+
+=item CTOP
+
+The value of this string will be written at the top of the c code
+written by Levmar::Func. This can be used to include headers and so forth.
+This option is actually set in the Levmar::Func object. This code is also written
+at the top of c code translated from lpp code.
+
+
+=item FVERBOSE
+
+If true (eg 1) Print the compiling and linking commands to STDERR when compiling fit functions.
+This option is actually passed to Levmar::Func. Default is 0.
 
 =item Default values
 
