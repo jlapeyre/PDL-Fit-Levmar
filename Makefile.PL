@@ -4,7 +4,7 @@ use ExtUtils::MakeMaker;
 use Carp;
 PDL::Core::Dev->import();
 
-$VERSION = "0.0090"; # Func/Makefile.PL relies on this!
+$VERSION = "0.0091"; # Func/Makefile.PL relies on this!
 
 my $levmarsrc = "./levmar-2.5";
 my $lmpackage = ["levmar.pd", Levmar, PDL::Fit::Levmar];
@@ -29,10 +29,14 @@ foreach my $f (qw( lm Axb misc lmlec lmbc lmblec lmbleic ) ){
     $hash{OBJECT} .= " $levmarsrc/$f\$(OBJ_EXT) ";
 }
 $hash{clean} = {FILES => $hash{clean}->{FILES} . " " . $hash{OBJECT} .
-		" *.o *.so  Levmar.html " };
+		" *.o *.so  Levmar.html tempcode/* " };
 
 $hash{OPTIMIZE} = " -O3 --unroll-loops ";  # from levmar src Makefile
 #$hash{OPTIMIZE} = " -O2  ";
+
+$hash{PREREQ_PM} => {
+        'PDL'            => 0,
+};
 
 {
 # This should be done more elegantly

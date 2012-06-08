@@ -11,6 +11,7 @@ examples/ex4.pl
 examples/ex5.pl
 examples/ex6.pl
 examples/ex7.pl
+examples/ex8.pl
 Func/func.h
 Func/func.pd
 Func/getsymbol.c

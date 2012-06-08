@@ -1,3 +1,7 @@
+0.0091
+GJL Fri Jun  8 19:04:07 CEST 2012
+- Clean tempcode. Added dependency on PDL in Makefile.PL
+
 0.0090
 GJL 13-May-2012
 - Default Makefile.PL works with debian. Changes and docs for MKOBJ,

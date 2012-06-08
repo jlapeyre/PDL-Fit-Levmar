@@ -1,0 +1,11 @@
+libpdl-fit-levmar-perl (0.0091-1) unstable; urgency=low
+
+  * Upstream Release.
+
+ -- John Lapeyre <lapeyre@physics.arizona.edu>  Fri, 08 Jun 2012 19:13:22 +0200
+	
+libpdl-fit-levmar-perl (0.0090-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- John Lapeyre <lapeyre@physics.arizona.edu>  Sun, 13 May 2012 18:02:08 +0200
