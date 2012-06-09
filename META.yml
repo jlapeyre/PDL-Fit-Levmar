@@ -1,15 +1,18 @@
 --- #YAML:1.0
 name:               PDL-Fit-Levmar
-version:            0.0091
-abstract:           ~
-author:  []
+version:            0.0092
+abstract:           Nonlinear fit and optimization routines for pdl
+author:
+    - John Lapeyre
 license:            unknown
 distribution_type:  module
 configure_requires:
     ExtUtils::MakeMaker:  0
 build_requires:
     ExtUtils::MakeMaker:  0
-requires:  {}
+    PDL:                  0
+requires:
+    PDL:  0
 no_index:
     directory:
         - t

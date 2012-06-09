@@ -20,8 +20,8 @@ Func/purepdlt.pl
 Func/t/func.t.d
 Func/t/call.t
 INSTALL
-COPYING
 Changes
+LICENSE
 levmar.pd
 levmar_ex.pl
 levmar-2.5/Axb.c
@@ -102,10 +102,16 @@ t/ndim.t
 t/simple_gaussian.lpp
 t/syntax.t.d
 TODO
-debian/README.debian
 debian/changelog
+debian/compat
 debian/control
 debian/copyright
-debian/rules
 debian/files
+debian/libpdl-fit-levmar-perl.debhelper.log
+debian/libpdl-fit-levmar-perl.docs
+debian/libpdl-fit-levmar-perl.examples
+debian/libpdl-fit-levmar-perl.substvars
+debian/rules
+debian/watch
+debian/source/format
 META.yml                                 Module meta-data (added by MakeMaker)

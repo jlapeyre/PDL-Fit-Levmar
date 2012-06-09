@@ -1,3 +1,7 @@
+0.0092
+GJL Sat, 09 Jun 2012 11:16:21 +0200
+- Fixes to Makefile.PL
+
 0.0091
 GJL Fri Jun  8 19:04:07 CEST 2012
 - Clean tempcode. Added dependency on PDL in Makefile.PL
