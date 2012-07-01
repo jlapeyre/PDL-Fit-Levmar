@@ -1,5 +1,8 @@
 Dependencies:
 
+The dependency is basically on lapack. There are many ways
+to provide it, even on the same platform.
+
 The following shared libraries or equivalents are required (version numbers are
 those used for testing this module.)
 liblapack.so.3

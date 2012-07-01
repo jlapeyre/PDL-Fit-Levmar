@@ -7,17 +7,11 @@ routines offer: fitting with numerical or analytic
 jacobians; single or double precision; no constraints, or
 linear constraints, or box constraints.
 
-This module will build under PDL 2.4.2 as well as the current
-cvs version of PDL.
-
 See INSTALL for instructions on building and installing and
 dependencies on external libraries. In brief, you need only
 a standard PDL installation and lapack and blas shared
 libraries and headers.
 
+Note: pdlscantree.pl was removed because it confuses CPAN
 See ./pdlscantree.pl in this directory for installing online pdl docs.
 It is modified a bit from the one supplied in PDL 2.4.2.
-
-John Lapeyre
- john is the username at  physics dot arizona dot edu
- Put 'levmar' in the subject line or I will almost certainly never get it.

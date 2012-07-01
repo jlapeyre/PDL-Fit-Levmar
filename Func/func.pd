@@ -1,4 +1,5 @@
 use strict;
+use warnings;
 use Carp;
 
 pp_bless('PDL::Fit::Levmar::Func');  # make the functions generated go into our namespace     
@@ -190,8 +191,8 @@ Generic constructor. Use levmar_func rather than new.
 =cut
 
 $PDL::Fit::Levmar::Func::SRC_EXT = ".c";
-$PDL::Fit::Levmar::Func::SO_EXT = ".so";
-$PDL::Fit::Levmar::Func::OBJ_EXT = ".o";
+#$PDL::Fit::Levmar::Func::SO_EXT = ".so";
+#$PDL::Fit::Levmar::Func::OBJ_EXT = ".o";
 
 sub deb { print STDERR $_[0], "\n";}
 
@@ -347,6 +348,13 @@ sub mfqp {
     return  $self->{$key};
 }
 
+# substitue string $new for $old when it
+# occurs after 'void'.
+sub subst_func_name {
+    my ($sref,$old,$new) = @_;
+    $$sref =~ s/(\W)void\s+$old/$1void $new/;
+}
+
 # Write c source file from function definition.
 # Entire definition is given as a string, or the
 # filename , ending in $LPPEXT is given
@@ -377,16 +385,26 @@ sub make_ccode {
 	    $self->{CCODE} = $self->{CSRC}; 
 	}
 	my ($funcname, $jacname) = $self->get_funcs_from_c();
-	my $floatcode = $self->{CCODE};
+	$jacname = '' unless defined $jacname;
+	my ($sfuncname, $sjacname);
+	$sfuncname = 's' . $funcname;
+	$sjacname = 's' . $jacname if $jacname;
+	my $doublecode = $self->{CCODE};
+	my $floatcode = $doublecode;
+	subst_func_name(\$floatcode, $funcname, $sfuncname);
+	subst_func_name(\$floatcode, $jacname, $sjacname) if $jacname;
+	if ($^O =~ /MSWin32/i) {
+              my $export = ' __declspec (dllexport) ';
+   	      subst_func_name(\$doublecode, $funcname,  $export . $funcname);
+   	      subst_func_name(\$floatcode, $sfuncname,  $export . $sfuncname);
+   	      subst_func_name(\$doublecode, $jacname,  $export . $jacname) if $jacname;
+   	      subst_func_name(\$floatcode, $sjacname,  $export . $sjacname) if $jacname;
+        }
 #	if ( /^\s*void\s+([\w]+)/ )
-#	deb $floatcode;
-	$floatcode =~ s/$funcname/s$funcname/;
-	$floatcode =~ s/$jacname/s$jacname/ if defined $jacname and $jacname ne ''; # gjl Dec 2011
-#	deb $floatcode;
 	$self->{CCODE} = 
 "
 #define FLOAT double
-" .  $self->{CCODE} .
+" .  $doublecode .
 "
 #undef FLOAT
 #define FLOAT float
@@ -567,19 +585,21 @@ sub clean_files {
 	    warn "Levmar::Func::clean_files: Source file '$srcn' not a file. Not deleting";
 	}
 	local (*SRCH);
-	open SRCH, "<$srcn" or die "Levmar::Func::clean_files : Can't open C source file '$srcn' for reading";
+	open SRCH, '<' , $srcn or die "Levmar::Func::clean_files : Can't open C source file '$srcn' for reading";
 	while (<SRCH>) {
 	    next if /^\s*$/;
 	    if (/\/\* This file Automatically/) {
+ 	        close(SRCH);
 		$cnt = 0;
 		$cnt = munlink $srcn;
 		if ( $cnt < 1) {
 		    warn "Levmar::Func::clean_files: cnt $cnt: Failed to delete source file '$srcn'";
 		}
+		last;
 	    }
 	    last; # only check up to first non-blank line
 	}
-	close(SRCH);
+#	close(SRCH);
     }
 }
 
@@ -719,7 +739,7 @@ sub generate_C_source {
     
     if ( defined $self->{TESTSYNTAX} ) {
 	my $st = '';
-        if (defined @$prefunc > 0) {
+        if ( @$prefunc > 0) {
 	    $st .= ":PREFUNC: lines:" . scalar(@{$prefunc}). "\n";
 	    	 $st .= join("\n",@{$prefunc}). "\n";
 	}	    
@@ -823,18 +843,19 @@ sub generate_C_source {
 	}
 	$kode1 .= $end_function;
     } #foreach my $name ..
+    my $export = $^O =~ /MSWin32/i ? '__declspec (dllexport)' : '';
     $kode .= "
 #define FLOAT double
-#define JACFUNNAME $jacname
-#define FITFUNNAME $funcname
+#define JACFUNNAME $export $jacname
+#define FITFUNNAME $export $funcname
 " .  $kode1 .
 "
 #undef FLOAT
 #undef JACFUNNAME
 #undef FITFUNNAME
 #define FLOAT float
-#define JACFUNNAME s$jacname
-#define FITFUNNAME s$funcname
+#define JACFUNNAME $export s$jacname
+#define FITFUNNAME $export s$funcname
 " . $kode1;
     return ($funcname,$jacname,$kode);
 }  # end sub generate_C_source {
@@ -854,6 +875,7 @@ sub open_and_find {
     call_open_and_find($lib_name, $func_name, $lib_handle,
 		       $func_pointer,  $error_message , $nchar);
     return ($func_pointer, $lib_handle, $error_message);
+#    return ($func_pointer, $lib_handle, '');
 }
 
 sub close_shared_object_file {
@@ -990,6 +1012,5 @@ call_close_shared_object_file ( lib_handle, rval , error_message, nchar )
    rval
    error_message
 
-
-');
+  ');
 

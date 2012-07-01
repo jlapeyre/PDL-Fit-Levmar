@@ -1,23 +1,29 @@
-use Data::Dumper;
+use strict;
+use warnings;
+
 use PDL::Core::Dev;
 use ExtUtils::MakeMaker;
 use Carp;
 PDL::Core::Dev->import();
 
-$VERSION = "0.0092"; # Func/Makefile.PL relies on this!
+our $VERSION = "0.0093"; # Func/Makefile.PL relies on this!
 
 my $levmarsrc = "./levmar-2.5";
-my $lmpackage = ["levmar.pd", Levmar, PDL::Fit::Levmar];
+my $lmpackage = ["levmar.pd", 'Levmar', 'PDL::Fit::Levmar'];
 
 my %hash = pdlpp_stdargs($lmpackage);
 
 $hash{VERSION}  = $VERSION;
-$hash{INC} .= " -I $levmarsrc";
+$hash{INC} .= " -I$levmarsrc";
 
 # I spent a few hours trying to figure out how to automatically
 # determine how to link lapack and blas. But I had no luck.
 
-$hash{LIBS} = [ ' -L/usr/lib/lapack -lm  -llapack -lblas '];
+$hash{DEFINE} = " -DHAVE_LAPACK ";
+
+$hash{LIBS}  = $^O =~ /MSWin32/i ? 
+    [ ' -L.. -lm  -llapack -lrefblas -LC:/strawberry/c/lib/gcc/x86_64-w64-mingw32/4.6.3/ -lgfortran ']  :
+    [ ' -L/usr/lib/lapack -lm  -llapack -lblas '];
 
 # These are some other possibilities, eg if f2c (f77) was used to compile lapack
 #' -lm  -llapack -lblas -lf2c ',
@@ -25,13 +31,12 @@ $hash{LIBS} = [ ' -L/usr/lib/lapack -lm  -llapack -lblas '];
 #	       ' -llapack -lcblas -lf77blas -latlas -lf2c ',
 #               ' -llapack -lblas -latlas -lg2c  ' ];
 
-
-
 $hash{DIR} = [ 'Func' ];
-$hash{DEFINE} = " -DHAVE_LAPACK ";
+
 foreach my $f (qw( lm Axb misc lmlec lmbc lmblec lmbleic ) ){
     $hash{OBJECT} .= " $levmarsrc/$f\$(OBJ_EXT) ";
 }
+
 $hash{clean} = {FILES => $hash{clean}->{FILES} . " " . $hash{OBJECT} .
 		" *.o *.so  Levmar.html tempcode/* " };
 
@@ -42,6 +47,7 @@ $hash{PREREQ_PM} = {
     'PDL' => 0,
 };
 
+$hash{CONFIGURE_REQUIRES} = { 'PDL' => 0 , 'ExtUtils::MakeMaker' => 0 };
 
 $hash{BUILD_REQUIRES} = {
         'PDL'            => 0,
@@ -72,8 +78,8 @@ Levmar.xs: pdlperlfunc\$(OBJ_EXT)
 
 }
 
-$hash{AUTHOR} = [ "John Lapeyre"];
-$hash{ABSTRACT} = "Nonlinear fit and optimization routines for pdl";
+$hash{AUTHOR} = 'John Lapeyre <jlapeyre cpan.org>';
+$hash{ABSTRACT} = 'Nonlinear fit and optimization routines for pdl';
 
 WriteMakefile( %hash );
 

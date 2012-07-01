@@ -6,7 +6,13 @@
  */
 
 #include <stdio.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <dlfcn.h>
+#endif
+
 #include <string.h>
 
 /* Open shared library and get one symbol pointer from it.
@@ -22,6 +28,30 @@
  */
 void _open_and_find (  char * lib_name, char * func_name, void ** lib_handle ,
 		       void ** func_pointer, char * error_message, int nchar ) {
+
+#ifdef _WIN32
+   HINSTANCE dllHandle = NULL;              
+   void *fp = NULL;
+   dllHandle = LoadLibrary(lib_name);
+   if (NULL != dllHandle) 
+   { 
+     fp  = (void *)GetProcAddress(dllHandle, func_name);
+     if ( NULL == fp ) {
+       int err = GetLastError();
+       fprintf(stderr, "*** GetProcAddress error %d\n", err);
+       memccpy(error_message, "*** GetProcAddress error\n" , 0, nchar);
+     }
+     else {
+       strcpy( error_message, "" );
+     }
+     *func_pointer =  fp;
+     *lib_handle = dllHandle;
+   }
+   else {
+     fprintf(stderr, "*** LoadLibrary failed to get handle\n");
+     memccpy(error_message, "*** LoadLibrary failed to get handle\n", 0, nchar);
+   }
+#else
   void * ret_lib;
   void * fp;
   const char *errmsg = NULL;
@@ -39,12 +69,25 @@ void _open_and_find (  char * lib_name, char * func_name, void ** lib_handle ,
     strcpy( error_message, "" );
   }
   else {
-    fprintf(stderr,"dlopen '%s'\n", errmsg);
+    fprintf(stderr,"*** dlopen '%s'\n", errmsg);
     memccpy( error_message, errmsg , 0, nchar);
   }
+#endif 
 }
 
 void   _close_shared_object_file( void ** lib_handle, int * rval, char * error_message, int nchar ) {
+#ifdef _WIN32
+  if ( *lib_handle != NULL ) *rval = FreeLibrary( (HINSTANCE)  *lib_handle );
+  if ( NULL == *rval ) {
+       int err = GetLastError();
+       fprintf(stderr, "*** FreeLibrary error %d\n", err);
+       memccpy( error_message, "*** FreeLibrary error\n" , 0, nchar);
+  }
+  else {
+    strcpy( error_message, "" );
+    *rval = 0;
+  }  
+#else
   const char *errmsg = NULL;
   if ( *lib_handle != NULL ) *rval = dlclose( (void *) *lib_handle );
   errmsg = dlerror();
@@ -54,5 +97,5 @@ void   _close_shared_object_file( void ** lib_handle, int * rval, char * error_m
   else {
     memccpy( error_message, errmsg , 0, nchar);
   }
-  //  fprintf(stderr,"close library err '%s'\n",errmsg);  
+#endif
 }

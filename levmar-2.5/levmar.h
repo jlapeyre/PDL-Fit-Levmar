@@ -26,7 +26,10 @@
 /************************************* Start of configuration options *************************************/
 
 /* specify whether to use LAPACK or not. The first option is strongly recommended */
+
+#if !defined(HAVE_LAPACK)
 #define HAVE_LAPACK /* use LAPACK */
+#endif
 /* #undef HAVE_LAPACK */  /* uncomment this to force not using LAPACK */
 
 /* to avoid the overhead of repeated mallocs(), routines in Axb.c can be instructed to

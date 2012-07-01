@@ -26,7 +26,8 @@
 /************************************* Start of configuration options *************************************/
 
 /* specify whether to use LAPACK or not. The first option is strongly recommended */
-#define HAVE_LAPACK /* use LAPACK */
+/* for PDL, HAVE_LAPACK is defined in Makefile.PL */
+/* #define HAVE_LAPACK */ /* use LAPACK */
 /* #undef HAVE_LAPACK */  /* uncomment this to force not using LAPACK */
 
 /* to avoid the overhead of repeated mallocs(), routines in Axb.c can be instructed to

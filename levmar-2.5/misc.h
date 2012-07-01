@@ -31,6 +31,7 @@
 //#define LM_BLAS_PREFIX f2c_
 /* C BLAS */
 //#define LM_BLAS_PREFIX cblas_
+//#define LM_BLAS_PREFIX
 
 /* common suffix for BLAS subroutines */
 //#define LM_BLAS_SUFFIX  // define empty if a f2c_ or cblas_ prefix was defined for LM_BLAS_PREFIX above
@@ -42,6 +43,7 @@
 #define RCAT_(a, b)    a #b
 #define RCAT(a, b)    RCAT_(a, b) // force substitution
 
+// #define LM_MK_LAPACK_NAME(s)  LM_CAT_(_,LM_ADD_PREFIX(LM_CAT_(s, LM_LAPACK_SUFFIX)))
 #define LM_MK_LAPACK_NAME(s)  LM_ADD_PREFIX(LM_CAT_(s, LM_LAPACK_SUFFIX))
 
 

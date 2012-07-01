@@ -4,13 +4,16 @@ You **must** have the perl module **PDL** **installed**
  **before** building this module. The linux package is often
 called 'pdl'.
 
-If you manage to port this module to Win32, I'd like to hear
-about it, but I don't know how to do it.
+This module has been installed on *nix, Mac OSX, and Win32
+platforms.
 
-You may need to edit this line in Makefile.PL:
-  $hash{LIBS} = [ ' -lm  -llapack -lblas '];
+You may need to edit the lines specifying $hash{LIBS} in Makefile.PL
 to give the proper flags to the linker regarding your lapack
 and blas libraries.
+
+For Win32, the default Makefile.PL assumes that liblapack.a and
+librefblas.a are in the parent directory of the distribution. The
+libraries used in testing were built with gfortran under mingw.
 
 For the most part, under a fairly standard linux installation,
 and  only if you have the dependencies (see below) installed...
@@ -45,6 +48,3 @@ lapack3-dev library of linear algebra routines 3 - static library
 refblas3-dev   Basic Linear Algebra Subroutines 3, static library
 
 These libraries are used in building upstream levmar library.
-
-
-

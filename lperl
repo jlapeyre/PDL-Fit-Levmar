@@ -1,4 +1,0 @@
-#
-# 'local' perl, ie use modules in this dir, so i dont have to install
-# usage 'lperl perlscript'
-perl -w -I ./blib/lib -I ./blib/arch  $*

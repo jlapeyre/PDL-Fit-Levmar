@@ -1,4 +1,5 @@
 use strict;
+use warnings;
 use Carp;
 
 pp_addpm({At=>'Top'},<<'===EOD===top_pm===');
@@ -67,7 +68,7 @@ In this example we fill co-ordinate $t and ordinate $x arrays
 with 100 pairs of sample data. Then we call the fit routine
 with initial guesses of the parameters.
 
- use PDL;
+ use PDL::LiteF;
  use PDL::Fit::Levmar;
  use PDL::NiceSlice;
  
@@ -689,11 +690,11 @@ of some options
    FUNC => undef,  # Levmar::Func object, or function def, or ...
    JFUNC => undef,  # must be ref to perl sub
    MAXITS => 100,   # maximum iterations
-   MU => 1e-3,      # These are described in levmar docs
-   EPS1 => 1e-15,
-   EPS2 => 1e-15,
-   EPS3 => 1e-20,
-   DELTA => 1e-6,
+   MU => LM_INIT_MU,      # These are described in levmar docs
+   EPS1 => LM_STOP_THRESH,
+   EPS2 => LM_STOP_THRESH,
+   EPS3 => LM_STOP_THRESH,
+   DELTA => LM_DIFF_DELTA,
    DERIVATIVE => 'analytic',
    FIX => undef,
    A => undef,
@@ -1198,12 +1199,10 @@ sub chk_eq_dims {
     my ($x,$y) = @_;
     my (@xd) = $x->dims();
     my (@yd) = $y->dims();
-    if (scalar(@xd) != scalar(@yd) ) {
-	return -2;
-    }
+    return -2 if (scalar(@xd) != scalar(@yd) );
     my $ret = 1;
-    for (my $i=0;$i<scalar(@xd);$i++) {
-	return -1 if ($xd[$i] != $yd[$i]);
+    foreach (@xd) {
+	return -1 if ($_ != shift(@yd) );
     }
     return $ret;
 }
@@ -1260,11 +1259,11 @@ $Levmar_defaults_order =  qw [
 
 $Levmar_defaults = {
     MAXITS => 100,   # maximum iterations
-    MU => 1e-3,
-    EPS1 => 1e-15,
-    EPS2 => 1e-15,
-    EPS3 => 1e-20,
-    DELTA => 1e-6,
+    MU =>    LM_INIT_MU(),
+    EPS1 =>  LM_STOP_THRESH(),
+    EPS2 =>  LM_STOP_THRESH(),
+    EPS3 =>  LM_STOP_THRESH(),
+    DELTA => LM_DIFF_DELTA(),
     DERIVATIVE => 'analytic',
     NOCOVAR => undef,
     FIX => undef,
@@ -1331,10 +1330,9 @@ sub levmar {
 	}
 	last if ( @_ == 0 or  $args == 0);
     }
-    my $inh = shift if @_; # input parameter hash
-    if ( not defined $inh ) {
-	$inh = {};
-    }
+    my $inh;
+    $inh = shift if @_; # input parameter hash
+    $inh = {} unless defined $inh;
     if(ref $inh ne 'HASH') { # turn list into anonymous hash
 	$inh = defined $inh ? {$inh,@_} : {} ;
     }
@@ -1348,10 +1346,9 @@ sub levmar {
     }
     # should already use a ref to string here
     $inh->{FUNC} = $infunc if defined $infunc;
-    if ( not defined $inh->{FUNC} and not defined $inh->{CSRC} ) {
-	die "levmar: neither FUNC nor CSRC defined";
-    }
-
+    die "levmar: neither FUNC nor CSRC defined"
+        unless defined $inh->{FUNC} or defined $inh->{CSRC};
+        
 ########  Handle parameters
     my $h = {}; # parameter hash to be built from $inh and defaults
     my $funch = {}; # unrecognized parameter hash. This will be passed to Func.
@@ -2228,8 +2225,30 @@ get_dbl_max(  )
      OUTPUT:
      RETVAL
 
+double
+LM_INIT_MU(  )
+     CODE:
+     RETVAL = LM_INIT_MU;
+     OUTPUT:
+     RETVAL
+
+double
+LM_STOP_THRESH(  )
+     CODE:
+     RETVAL = LM_STOP_THRESH;
+     OUTPUT:
+     RETVAL
+
+double
+LM_DIFF_DELTA(  )
+     CODE:
+     RETVAL = LM_DIFF_DELTA;
+     OUTPUT:
+     RETVAL
+
 
 =pod
+
 
 =begin comment
 

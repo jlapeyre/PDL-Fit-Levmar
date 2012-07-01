@@ -3,27 +3,17 @@ the following tasks.
 
 === Potential bugs or porting problems:
 
--- Perl has a an interface to dlopen, etc. It may be
-   more portable to use that interface, rather than
-   the one I wrote. 
-
 -- Use PP::Options to handle options rather than using hand coding.
 
 === Bugs:
 
 === Missing Features:
 
---- Support for other implementations of lapack, e.g. atlas. This should
-    be fairly easy, as Makefile.PL has support for trying lists of libs
-    in succession, and atlas is a drop in replacment.
-
 --- liblevmar prints warnings and errors to sterr and sometimes exits. Instead
     pass  a buffer to the routines to collect messages. And return, don't exit
     on failed mallocs, etc.
 
 ==== Efficiency 
-
----- Found Inline C and Inline Pdlpp; missed them before even though I looked.
 
 ---- Strings representing lpp and C code are copied quite a bit in the
      routines. This should be fixed. refs to strings should be allowed
@@ -35,15 +25,6 @@ the following tasks.
 ---- In generate_C_src() the regexs that replace t with t[i],
      etc. could probably be made more efficient. Currently I use
      while($fdef =~ s/([^\w]|^)t([^\w\[])/$1t[i]$2/g){}
-
----- The code that calls dlopen and dlsym would be simpler, more transparant
-     (less dereferencing), and save a few function calls if it were
-     moved from C code into  pp_addxs.  The same goes for any routines that
-     are in pdlperlfunc.c buy get called from an xs wrapper. This is only
-     a minor performance issue, but it is cleaner. Hmm, tried some of it,
-     but some must be called from the pp_def, which is unweildly because of
-     nested quotes, etc. So its not clean after all to have some of the
-     DFP functions in pdlperlfunc.c and some in xs (pp_def).
 
 #---------------------------------------------
  THINGS LISTED BELOW HAVE BEEN DONE  

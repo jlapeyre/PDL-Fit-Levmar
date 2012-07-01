@@ -782,7 +782,7 @@ my $defst = '
 
 
 
-print "1..27\n";
+print "1..25\n";
 
 print "# type double\n";
 $Type = double;
@@ -800,7 +800,7 @@ $Type = float;
 rosenbrock();
 modified_rosenbrock();
 powell();
-boggs_tolle_3();
+#boggs_tolle_3();
 hatfldb();
 
 =pod
