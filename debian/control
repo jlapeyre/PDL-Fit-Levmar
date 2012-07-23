@@ -1,7 +1,7 @@
 Source: libpdl-fit-levmar-perl
 Section: perl
 Priority: optional
-Maintainer: John Lapeyre <lapeyre@physics.arizona.edu>
+Maintainer: John Lapeyre <jlapeyre@cpan.org>
 Build-Depends: debhelper (>= 8),
  perl,
  perl-modules,

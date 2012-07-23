@@ -2,8 +2,12 @@ use strict;
 use warnings;
 use Carp;
 
+$PDL::Fit::Levmar::VERSION = '0.0094';
+pp_setversion( "'$PDL::Fit::Levmar::VERSION'");
+
+
 pp_addpm({At=>'Top'},<<'===EOD===top_pm===');
-use Data::Dumper;
+#use Data::Dumper;
 
 =head1 NAME
 

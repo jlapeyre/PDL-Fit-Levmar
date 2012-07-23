@@ -6,14 +6,15 @@ use ExtUtils::MakeMaker;
 use Carp;
 PDL::Core::Dev->import();
 
-our $VERSION = "0.0093"; # Func/Makefile.PL relies on this!
+#our $VERSION = "0.0094"; # Func/Makefile.PL relies on this!
 
 my $levmarsrc = "./levmar-2.5";
 my $lmpackage = ["levmar.pd", 'Levmar', 'PDL::Fit::Levmar'];
 
 my %hash = pdlpp_stdargs($lmpackage);
 
-$hash{VERSION}  = $VERSION;
+#$hash{VERSION}  = $VERSION;
+$hash{VERSION_FROM} = 'levmar.pd';
 $hash{INC} .= " -I$levmarsrc";
 
 # I spent a few hours trying to figure out how to automatically

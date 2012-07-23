@@ -6,7 +6,7 @@ PDL::Core::Dev->import();
 my $fpackage = ["func.pd", Func, PDL::Fit::Levmar::Func];
 my %hash = pdlpp_stdargs($fpackage);
 
-$hash{VERSION_FROM}  = '../Makefile.PL';
+$hash{VERSION_FROM}  = '../levmar.pd';
 #$hash{OBJECT} .= '  getsymbol$(OBJ_EXT) pdlperlfunc$(OBJ_EXT) ';
 
 $hash{OBJECT} .= '  getsymbol$(OBJ_EXT)  ';

@@ -1,3 +1,0 @@
-perl:Depends=perl (>= 5.14.2-10), perlapi-5.14.2
-shlibs:Depends=libblas3gf | libblas.so.3gf | libatlas3gf-base, libc6 (>= 2.2.5), liblapack3gf | liblapack.so.3gf | libatlas3gf-base
-misc:Depends=

@@ -1,3 +1,6 @@
+0.0094
+- Put version number in Levmar.pm
+
 0.0093
 GJL Sat, Sat, 30 Jun 2012 00:17:20 +0200
 - Applied patch from Diab Jarius to use default
