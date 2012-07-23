@@ -1,6 +1,5 @@
 compare.pl
 arg_combs.pl
-doc/levmar.pdf
 example.pl
 example_stripped.pl
 examples/levmar_ex.pl
@@ -95,16 +94,4 @@ t/ndim.t
 t/simple_gaussian.lpp
 t/syntax.t.d
 TODO
-debian/changelog
-debian/compat
-debian/control
-debian/copyright
-debian/files
-debian/libpdl-fit-levmar-perl.debhelper.log
-debian/libpdl-fit-levmar-perl.docs
-debian/libpdl-fit-levmar-perl.examples
-debian/libpdl-fit-levmar-perl.substvars
-debian/rules
-debian/watch
-debian/source/format
 META.yml                                 Module meta-data (added by MakeMaker)
