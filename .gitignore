@@ -1,8 +1,0 @@
-*~
-*.o
-Func.c
-Levmar.c
-Func.pm
-Levmar.pm
-MYMETA.yml
-Makefile.old

@@ -1,25 +1,24 @@
----
-abstract: 'Nonlinear fit and optimization routines for pdl'
+--- #YAML:1.0
+name:               PDL-Fit-Levmar
+version:            0.0094
+abstract:           Nonlinear fit and optimization routines for pdl
 author:
-  - 'John Lapeyre <jlapeyre cpan.org>'
-build_requires:
-  ExtUtils::MakeMaker: 0
-  PDL: 0
+    - John Lapeyre <jlapeyre cpan.org>
+license:            unknown
+distribution_type:  module
 configure_requires:
-  ExtUtils::MakeMaker: 0
-  PDL: 0
-distribution_type: module
-dynamic_config: 0
-generated_by: 'ExtUtils::MakeMaker version 6.57_05'
-license: unknown
-meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.4.html
-  version: 1.4
-name: PDL-Fit-Levmar
-no_index:
-  directory:
-    - t
-    - inc
+    ExtUtils::MakeMaker:  0
+    PDL:                  0
+build_requires:
+    ExtUtils::MakeMaker:  0
+    PDL:                  0
 requires:
-  PDL: 0
-version: 0.0094
+    PDL:  0
+no_index:
+    directory:
+        - t
+        - inc
+generated_by:       ExtUtils::MakeMaker version 6.57_05
+meta-spec:
+    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
+    version:  1.4

@@ -15,10 +15,11 @@ $ok_count = 0;
 $not_ok_count = 0;
 
 sub tapprox {
-        my($a,$b) = @_;
+        my($a,$b,$eps) = @_;
+        $eps = 0.00001 unless $eps;
         my $c = abs(topdl($a)-topdl($b));
         my $d = max($c);
-        $d < 0.00001;
+        $d < $eps;
 }
 
 sub ok {  
@@ -96,6 +97,8 @@ cpr "# Done compiling fit function.";
 # The problems in liblevmar.t have no t (mostly)
 # There is an interface for that, but I have not checked it yet.
 sub chkjac {
+    my ($eps) = @_;
+    $eps = 1e-5 unless $eps;
     my $n = 10;
     my $r = 5;
     my $t = sequence $Type, $n;
@@ -107,7 +110,7 @@ sub chkjac {
     my $jref = \&jacgauss;
     my $gh2 = levmar_func(FUNC=> $fref, JFUNC => $jref);
     my $err2 = levmar_chkjac($gh2,$p,$t);
-    ok(tapprox($err2,$err), "Chkjac  lpp results == perl sub results");
+    ok(tapprox($err2,$err,$eps), "Chkjac  lpp results == perl sub results");
     print "# err1= $err\n";
     print "# err2= $err2\n";
 }
@@ -117,12 +120,12 @@ print "1..2\n";
 print "# type double\n";
 $Type = double;
 
-chkjac();
+chkjac(1e-5);
 
 print "# type float\n";
 $Type = float;
 
-chkjac();
+chkjac(1e-4);
 
 print "# Ok count: $ok_count, Not ok count: $not_ok_count\n";
 
