@@ -30,6 +30,10 @@ routines are re-entrant, so they can be used in
 multi-threaded applications (not tested!). Levmar is suited
 both for data fitting and for optimization problems.
 
+The source code for the C levmar library is included in
+this distribution. However, C<PDL::Fit::Levmar> does require
+that B<lapack> and B<blas> libraries be installed.
+
 User supplied fit functions can be written in perl code that
 takes pdls as arguments, or, for efficiency, in in a simple
 function description language (C<lpp>), which is rapidly and
