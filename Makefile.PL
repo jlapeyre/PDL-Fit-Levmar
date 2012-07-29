@@ -111,5 +111,33 @@ sub c_o {
     $inherited;
 }
 
+# reroute the main POD into a separate README.pod if requested. This is here
+# purely to generate a README.pod for the github front page
+my $POD_header = <<EOF;
+
+=head1 OVERVIEW
+
+This module is available on CPAN
+
+=cut
+
+EOF
+
+if(exists $ARGV[0] && $ARGV[0] eq 'README.pod')
+{
+  open README, '>README.pod'              or die "Couldn't open README.pod";
+  print README $POD_header;
+
+  foreach my $mod  ('Levmar.pm', 'Func/Func.pm') {
+      open MOD, $mod or die "Couldn't open main module";
+      while (<MOD>)
+      {
+          if (/^=/../^=cut/)
+          { print README; }
+      }
+      close(MOD);
+  }
+  close(README);
+}
 
 
