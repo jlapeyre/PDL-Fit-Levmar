@@ -7,10 +7,10 @@ use Carp;
 PDL::Core::Dev->import();
 
 # Choose this to build *without* lapack
-our $HAVE_LAPACK = 0;
+#our $HAVE_LAPACK = 0;
 
 # Choose this to build *with* lapack
-# our $HAVE_LAPACK = 1;
+our $HAVE_LAPACK = 1;
 
 # Developer must edit VERSION in both Levmar.pm and Func.pm
 
