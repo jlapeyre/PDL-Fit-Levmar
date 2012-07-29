@@ -6,3 +6,8 @@ Func.pm
 Levmar.pm
 MYMETA.yml
 Makefile.old
+Func/Makefile
+Levmar.xs
+Makefile
+blib/
+have_lapack

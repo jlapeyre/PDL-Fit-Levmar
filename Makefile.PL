@@ -10,10 +10,10 @@ PDL::Core::Dev->import();
 
 # currently must be set to 1. building without
 # lapack not yet completely implemented
-our $HAVE_LAPACK = 1;
+our $HAVE_LAPACK = 0;
 
 open my $fh, '>','have_lapack' or die "Can't open config file have_lapack for write.";
-print $fh "\$HAVE_LAPACK=$HAVE_LAPACK;\n";
+print $fh "\$HAVE_LAPACK=$HAVE_LAPACK;\n1\n";
 close($fh);
 
 my $levmarsrc = "./levmar-2.5";
