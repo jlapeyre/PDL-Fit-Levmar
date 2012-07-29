@@ -1970,8 +1970,12 @@ sub make_argument_combinations {
         }
     }
     else {
-        foreach my $box ( [ ] , [ 'lb', 'ub' ] , [ 'lb' ], [ 'ub' ] ) {
-            push @$arg_combs, [ @$box, @$linear, @$ineq ];
+        foreach my $linear ( [ ] ) {
+            foreach my $box ( [ ] , [ 'lb', 'ub' ] , [ 'lb' ], [ 'ub' ] ) {
+                foreach my $ineq ( [ ] ] ) {
+                    push @$arg_combs, [ @$box, @$linear, @$ineq ];
+                }
+            }
         }
     }
     foreach my $arg_comb ( @$arg_combs ) {
