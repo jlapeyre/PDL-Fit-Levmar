@@ -1170,6 +1170,8 @@ sub deb { print STDERR $_[0],"\n"}
 
 ===EOD===top_pm===
 
+pp_addpm({At=>'Top'},"\$PDL::Fit::Levmar::HAVE_LAPACK=$HAVE_LAPACK;\n");
+
 pp_addpm({At=>'Bot'},<<'===EOD===Authors===');
 
 
