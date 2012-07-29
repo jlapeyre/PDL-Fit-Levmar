@@ -1972,7 +1972,7 @@ sub make_argument_combinations {
     else {
         foreach my $linear ( [ ] ) {
             foreach my $box ( [ ] , [ 'lb', 'ub' ] , [ 'lb' ], [ 'ub' ] ) {
-                foreach my $ineq ( [ ] ] ) {
+                foreach my $ineq ( [ ] ) {
                     push @$arg_combs, [ @$box, @$linear, @$ineq ];
                 }
             }
