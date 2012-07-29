@@ -6,7 +6,15 @@ use ExtUtils::MakeMaker;
 use Carp;
 PDL::Core::Dev->import();
 
-#our $VERSION = "0.0094"; # Func/Makefile.PL relies on this!
+#our $VERSION = "0.0094"; not used here anymore
+
+# currently must be set to 1. building without
+# lapack not yet completely implemented
+our $HAVE_LAPACK = 1;
+
+open my $fh, '>','have_lapack' or die "Can't open config file have_lapack for write.";
+print $fh "\$HAVE_LAPACK=$HAVE_LAPACK;\n";
+close($fh);
 
 my $levmarsrc = "./levmar-2.5";
 my $lmpackage = ["levmar.pd", 'Levmar', 'PDL::Fit::Levmar'];
@@ -20,11 +28,18 @@ $hash{INC} .= " -I$levmarsrc";
 # I spent a few hours trying to figure out how to automatically
 # determine how to link lapack and blas. But I had no luck.
 
-$hash{DEFINE} = " -DHAVE_LAPACK ";
+$hash{DEFINE} = ' -DHAVE_LAPACK ' if $HAVE_LAPACK;
 
-$hash{LIBS}  = $^O =~ /MSWin32/i ? 
-    [ ' -L.. -lm  -llapack -lrefblas -LC:/strawberry/c/lib/gcc/x86_64-w64-mingw32/4.6.3/ -lgfortran ']  :
-    [ ' -L/usr/lib/lapack -lm  -llapack -lblas '];
+if ( $HAVE_LAPACK ) {
+    $hash{LIBS}  = $^O =~ /MSWin32/i ? 
+        [ ' -L.. -lm  -llapack -lrefblas -LC:/strawberry/c/lib/gcc/x86_64-w64-mingw32/4.6.3/ -lgfortran ']  :
+        [ ' -L/usr/lib/lapack -lm  -llapack -lblas '];
+}
+else {
+    $hash{LIBS}  = $^O =~ /MSWin32/i ? 
+        [ ' -L.. -lm  -LC:/strawberry/c/lib/gcc/x86_64-w64-mingw32/4.6.3/ -lgfortran ']  :
+        [ ' '];
+}
 
 # These are some other possibilities, eg if f2c (f77) was used to compile lapack
 #' -lm  -llapack -lblas -lf2c ',
@@ -39,7 +54,7 @@ foreach my $f (qw( lm Axb misc lmlec lmbc lmblec lmbleic ) ){
 }
 
 $hash{clean} = {FILES => $hash{clean}->{FILES} . " " . $hash{OBJECT} .
-		" *.o *.so  Levmar.html tempcode/* " };
+		" *.o *.so have_lapack Levmar.html tempcode/* tempcode Func/tempcode/* Func/tempcode have_lapack " };
 
 $hash{OPTIMIZE} = " -O3 --unroll-loops ";  # from levmar src Makefile
 #$hash{OPTIMIZE} = " -O2  ";
