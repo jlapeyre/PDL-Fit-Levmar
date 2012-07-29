@@ -34,9 +34,15 @@ routines are re-entrant, so they can be used in
 multi-threaded applications (not tested!). Levmar is suited
 both for data fitting and for optimization problems.
 
-The source code for the C levmar library is included in
-this distribution. However, C<PDL::Fit::Levmar> does require
-that B<lapack> and B<blas> libraries be installed.
+The source code for the C levmar library is included in this
+distribution. However, linearly-constrained fitting requires
+that C<PDL::Fit::Levmar> be built with support for B<lapack>
+and B<blas> libraries. See the files F<INSTALL> and
+F<Makefile.PL>, for more information. If
+C<PDL::Fit::Levmar> is built without support for C<lapack>,
+the fitting options C<A>, C<B>, C<C>, C<D>, and C<FIX> may
+not be used. All other options, including C<FIXB>, do not
+require C<lapack>.
 
 User supplied fit functions can be written in perl code that
 takes pdls as arguments, or, for efficiency, in in a simple
@@ -1365,7 +1371,7 @@ sub levmar {
 
 if (not $HAVE_LAPACK) {
 pp_addpm( q! 
-    foreach (qw( A B C D FIX FIXB WGHT )) {
+    foreach (qw( A B C D FIX WGHT )) {
         barf "PDL::Fit::Levmar not built with lapack. Found parameter $_"
             if exists $inh->{$_};
     }
