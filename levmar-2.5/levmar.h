@@ -27,9 +27,11 @@
 
 /* specify whether to use LAPACK or not. The first option is strongly recommended */
 
+/*  GJL Jul 2012 remove for PDL. should be set in Makefile.PL
 #if !defined(HAVE_LAPACK)
-#define HAVE_LAPACK /* use LAPACK */
+#define HAVE_LAPACK 
 #endif
+*/
 /* #undef HAVE_LAPACK */  /* uncomment this to force not using LAPACK */
 
 /* to avoid the overhead of repeated mallocs(), routines in Axb.c can be instructed to
