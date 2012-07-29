@@ -364,7 +364,6 @@ ok ( tapprox($hout->{P},$p_actual), " C source in string , but passed as FUNC ")
 #($t,$x,$p,$ip,$p_actual) = make_gaussian(1000, pdl(2.0, 0.1, 1.0), pdl(1.3, .99, 1.002), 0);
 ($t,$x,$p,$ip,$p_actual) = make_gaussian(1000, pdl(2.0, .5, 1.0), pdl(1.1, .9, 1.2), 0);
 
-
 $p = $ip->copy;
 $hout = levmar($p,$x,$t, FUNC => $func1,  FIX => [1,0,0] );
 ok ( tapprox( $hout->{P}, [2.2,0.74393499048208,0.66570905852215] ), 
