@@ -298,7 +298,13 @@ thread1();
 thread2();
 thread3();
 thread4();
-thread5();
+
+if ($PDL::Fit::Levmar::HAVE_LAPACK) {
+ thread5();
+}
+else {
+ ok(1);
+}
 
 print "# type float\n";
 $Type = float;
