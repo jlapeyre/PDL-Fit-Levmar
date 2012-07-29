@@ -2,6 +2,9 @@ use strict;
 use warnings;
 use Carp;
 
+$PDL::Fit::Levmar::Func::VERSION = '0.0095';
+pp_setversion( "'$PDL::Fit::Levmar::Func::VERSION'");
+
 pp_bless('PDL::Fit::Levmar::Func');  # make the functions generated go into our namespace     
 pp_addpm({At=>'Top'},<<'======EOD_Documentation======');
 =head1 NAME

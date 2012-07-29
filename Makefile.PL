@@ -6,11 +6,13 @@ use ExtUtils::MakeMaker;
 use Carp;
 PDL::Core::Dev->import();
 
-#our $VERSION = "0.0094"; not used here anymore
-
-# currently must be set to 1. building without
-# lapack not yet completely implemented
+# Choose this to build *without* lapack
 our $HAVE_LAPACK = 0;
+
+# Choose this to build *with* lapack
+# our $HAVE_LAPACK = 1;
+
+# Developer must edit VERSION in both Levmar.pm and Func.pm
 
 open my $fh, '>','have_lapack' or die "Can't open config file have_lapack for write.";
 print $fh "\$HAVE_LAPACK=$HAVE_LAPACK;\n1\n";

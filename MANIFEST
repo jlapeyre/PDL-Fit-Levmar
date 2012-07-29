@@ -81,6 +81,7 @@ newtest.pl
 NOTES
 pdlperlfunc.c
 README
+README.pod
 t/gauss_from_c.c
 t/ros.c
 t/gauss_from_def.lpp
