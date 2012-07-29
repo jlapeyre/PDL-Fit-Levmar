@@ -1365,7 +1365,7 @@ sub levmar {
 
 if (not $HAVE_LAPACK) {
 pp_addpm( q! 
-    foreach (qw( A B UB LB C D FIX FIXB WGHT )) {
+    foreach (qw( A B C D FIX FIXB WGHT )) {
         barf "PDL::Fit::Levmar not built with lapack. Found parameter $_"
             if exists $inh->{$_};
     }
