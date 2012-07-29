@@ -1960,11 +1960,18 @@ sub make_argument_combinations {
     # result should also be used to check if a call is legal
     # This should make all leval combinations
     my $arg_combs = [];
-    foreach my $linear ( [ ] , [ 'A', 'b' ] ) {
-        foreach my $box ( [ ] , [ 'lb', 'ub' ] , [ 'lb' ], [ 'ub' ] ) {
-            foreach my $ineq ( [ ] , [ 'C', 'd' ] ) {
-               push @$arg_combs, [ @$box, @$linear, @$ineq ];
+    if ($HAVE_LAPACK) {
+        foreach my $linear ( [ ] , [ 'A', 'b' ] ) {
+            foreach my $box ( [ ] , [ 'lb', 'ub' ] , [ 'lb' ], [ 'ub' ] ) {
+                foreach my $ineq ( [ ] , [ 'C', 'd' ] ) {
+                    push @$arg_combs, [ @$box, @$linear, @$ineq ];
+                }
             }
+        }
+    }
+    else {
+        foreach my $box ( [ ] , [ 'lb', 'ub' ] , [ 'lb' ], [ 'ub' ] ) {
+            push @$arg_combs, [ @$box, @$linear, @$ineq ];
         }
     }
     foreach my $arg_comb ( @$arg_combs ) {
