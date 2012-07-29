@@ -11,3 +11,8 @@ Levmar.xs
 Makefile
 blib/
 have_lapack
+Func/Func.bs
+Func/Func.xs
+Func/pm_to_blib
+Levmar.bs
+pm_to_blib
