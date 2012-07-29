@@ -422,13 +422,10 @@ my $defst = '
 #   my $h4 = levmar($p4,$x, FUNC => $defst, A => $A, B => $b, @opts );
 #   ok(tapprox($h4->{P},$correct_minimum), "Boggs Tolle, def  # TODO");
 
-
-
 #   my $p5 = $p->copy;
 #   my $h5 = levmar($p5,$x, FUNC => $pf, JFUNC=> $pd,
 #                       A => $A, B => $b, @opts, DERIVATIVE =>'numeric' );
 #   ok(tapprox($h5->{P},$correct_minimum), "Boggs Tolle perl sub, numeric");
-
    
 #   my $p6 = $p->copy;
 #   my $h6 = levmar($p6,$x, FUNC => $pf, JFUNC=> $pd,
@@ -439,7 +436,6 @@ my $defst = '
 #   my $p2 = $p->copy;
 #   my $h2 = levmar($p2,$x, FUNC => $h1->{FUNC}, A => $A, B => $b, @opts, DERIVATIVE => 'numeric' );
 #   ok(tapprox($h2->{P},$correct_minimum), "Boggs Tolle, numeric");
-
  
 }
 
@@ -786,13 +782,20 @@ print "1..25\n";
 
 print "# type double\n";
 $Type = double;
-hock_schittkowski_mod_76();
-hock_schittkowski_mod2_52();
-hock_schittkowski();
 rosenbrock();
 modified_rosenbrock();
 powell();
-boggs_tolle_3();
+if ($PDL::Fit::Levmar::HAVE_LAPACK) {
+ hock_schittkowski_mod_76();
+ hock_schittkowski_mod2_52();
+ hock_schittkowski();
+ boggs_tolle_3();
+}
+else {
+ ok(1);
+ ok(1);
+ ok(1);
+}
 hatfldb();
 
 print "# type float\n";

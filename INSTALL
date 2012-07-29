@@ -7,6 +7,17 @@ called 'pdl'.
 This module has been installed on *nix, Mac OSX, and Win32
 platforms.
 
+To build with support for linearly-constrained fitting, you must
+
+  1) have lapack and blas development libraries installed. 
+  2) In  `./Makefile.PL` set
+    our $HAVE_LAPACK = 1;
+
+To build *without* support for linearly-constrained fitting, you must
+
+  1) In  `./Makefile.PL` set
+    our $HAVE_LAPACK = 0;
+
 You may need to edit the lines specifying $hash{LIBS} in Makefile.PL
 to give the proper flags to the linker regarding your lapack
 and blas libraries.
@@ -32,7 +43,7 @@ To install, as root, do
 make install
 
 ------------------------------------
-Dependencies:
+Dependencies for linearly-constrained fitting:
 
 The following shared libraries or equivalents are required (version numbers are
 those used for testing this module.)
