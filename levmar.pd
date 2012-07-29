@@ -1,8 +1,9 @@
+# -*-Perl-*-     # for emacs
 use strict;
 use warnings;
 use Carp;
 
-$PDL::Fit::Levmar::VERSION = '0.0095';
+$PDL::Fit::Levmar::VERSION = '0.0096';
 pp_setversion( "'$PDL::Fit::Levmar::VERSION'");
 
 
