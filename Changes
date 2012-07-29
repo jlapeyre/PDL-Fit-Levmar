@@ -1,3 +1,7 @@
+0.0095
+  Sun, 29 Jul 2012 14:57:13 +0200
+  - Support building without lapack
+
 0.0094
 - Put version number in Levmar.pm
 
@@ -6,7 +10,7 @@ GJL Sat, Sat, 30 Jun 2012 00:17:20 +0200
 - Applied patch from Diab Jarius to use default
   parameters from levmar lib, and other small changes
   to silence warnings, etc.
-- Builds and passes tests with MinGW and Strawberr perl.
+- Builds and passes tests with MinGW and Strawberry perl.
 
 0.0092
 GJL Sat, 09 Jun 2012 11:16:21 +0200

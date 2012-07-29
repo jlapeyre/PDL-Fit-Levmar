@@ -1,7 +1,10 @@
 Dependencies:
 
-The dependency is basically on lapack. There are many ways
-to provide it, even on the same platform.
+Linearly-constrained fitting requires the lapack and blas libraries.
+But, unconstrained and box constraints do not require lapack.
+See INSTALL for more information.
+
+There are many ways to provide lapack, even on the same platform.
 
 The following shared libraries or equivalents are required (version numbers are
 those used for testing this module.)
@@ -11,7 +14,6 @@ libg2c.so.0
 
 Linking against these shared libaries requires, for instance under debian, that
 the following development packages be installed.
-
 
 lapack3-dev library of linear algebra routines 3 - static library
 refblas3-dev   Basic Linear Algebra Subroutines 3, static library

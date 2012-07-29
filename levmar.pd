@@ -2,9 +2,13 @@ use strict;
 use warnings;
 use Carp;
 
-$PDL::Fit::Levmar::VERSION = '0.0094';
+$PDL::Fit::Levmar::VERSION = '0.0095';
 pp_setversion( "'$PDL::Fit::Levmar::VERSION'");
 
+
+our $HAVE_LAPACK;
+require './have_lapack';
+#print "HAVE_LAPACK = $HAVE_LAPACK\n";
 
 pp_addpm({At=>'Top'},<<'===EOD===top_pm===');
 #use Data::Dumper;
@@ -29,6 +33,16 @@ case) and pure single or double precision computation. The
 routines are re-entrant, so they can be used in
 multi-threaded applications (not tested!). Levmar is suited
 both for data fitting and for optimization problems.
+
+The source code for the C levmar library is included in this
+distribution. However, linearly-constrained fitting requires
+that C<PDL::Fit::Levmar> be built with support for B<lapack>
+and B<blas> libraries. See the files F<INSTALL> and
+F<Makefile.PL>, for more information. If
+C<PDL::Fit::Levmar> is built without support for C<lapack>,
+the fitting options C<A>, C<B>, C<C>, C<D>, and C<FIX> may
+not be used. All other options, including C<FIXB>, do not
+require C<lapack>.
 
 User supplied fit functions can be written in perl code that
 takes pdls as arguments, or, for efficiency, in in a simple
@@ -1162,6 +1176,8 @@ sub deb { print STDERR $_[0],"\n"}
 
 ===EOD===top_pm===
 
+pp_addpm({At=>'Top'},"\$PDL::Fit::Levmar::HAVE_LAPACK=$HAVE_LAPACK;\n");
+
 pp_addpm({At=>'Bot'},<<'===EOD===Authors===');
 
 
@@ -1195,7 +1211,7 @@ pp_addhdr('
 pp_add_exported('', 'levmar', 'levmar_report', 'levmar_chkjac');
 
 
-pp_addpm(<<'===EOD===pm_code===');
+pp_addpm(<<'===EOD===pm_code===one');
 
 
 # check if dims are equal in two pdls
@@ -1301,8 +1317,6 @@ This is the help string for levmar.
 ';
 }
 
-
-
 #################################################################
 sub levmar {
     my($p,$x,$t,$infunc);
@@ -1352,6 +1366,20 @@ sub levmar {
     $inh->{FUNC} = $infunc if defined $infunc;
     die "levmar: neither FUNC nor CSRC defined"
         unless defined $inh->{FUNC} or defined $inh->{CSRC};
+
+===EOD===pm_code===one
+
+if (not $HAVE_LAPACK) {
+pp_addpm( q! 
+    foreach (qw( A B C D FIX WGHT )) {
+        barf "PDL::Fit::Levmar not built with lapack. Found parameter $_"
+            if exists $inh->{$_};
+    }
+   !)
+  }
+
+pp_addpm(<<'===EOD===pm_code===two');
+
         
 ########  Handle parameters
     my $h = {}; # parameter hash to be built from $inh and defaults
@@ -1754,7 +1782,7 @@ sub levmar_chkjac {
     return $err;
 }
 
-===EOD===pm_code===
+===EOD===pm_code===two
 
 =pod
 
@@ -1940,10 +1968,21 @@ sub make_argument_combinations {
     # result should also be used to check if a call is legal
     # This should make all leval combinations
     my $arg_combs = [];
-    foreach my $linear ( [ ] , [ 'A', 'b' ] ) {
-        foreach my $box ( [ ] , [ 'lb', 'ub' ] , [ 'lb' ], [ 'ub' ] ) {
-            foreach my $ineq ( [ ] , [ 'C', 'd' ] ) {
-               push @$arg_combs, [ @$box, @$linear, @$ineq ];
+    if ($HAVE_LAPACK) {
+        foreach my $linear ( [ ] , [ 'A', 'b' ] ) {
+            foreach my $box ( [ ] , [ 'lb', 'ub' ] , [ 'lb' ], [ 'ub' ] ) {
+                foreach my $ineq ( [ ] , [ 'C', 'd' ] ) {
+                    push @$arg_combs, [ @$box, @$linear, @$ineq ];
+                }
+            }
+        }
+    }
+    else {
+        foreach my $linear ( [ ] ) {
+            foreach my $box ( [ ] , [ 'lb', 'ub' ] , [ 'lb' ], [ 'ub' ] ) {
+                foreach my $ineq ( [ ] ) {
+                    push @$arg_combs, [ @$box, @$linear, @$ineq ];
+                }
             }
         }
     }

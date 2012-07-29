@@ -364,6 +364,7 @@ ok ( tapprox($hout->{P},$p_actual), " C source in string , but passed as FUNC ")
 #($t,$x,$p,$ip,$p_actual) = make_gaussian(1000, pdl(2.0, 0.1, 1.0), pdl(1.3, .99, 1.002), 0);
 ($t,$x,$p,$ip,$p_actual) = make_gaussian(1000, pdl(2.0, .5, 1.0), pdl(1.1, .9, 1.2), 0);
 
+if ($PDL::Fit::Levmar::HAVE_LAPACK) {
 
 $p = $ip->copy;
 $hout = levmar($p,$x,$t, FUNC => $func1,  FIX => [1,0,0] );
@@ -406,19 +407,6 @@ ok (   tapprox( $hout->{P}, [2.2,0.527550911537348,1.2] ),
       "(last 2 tests same as 2 FIX's above)" );
 prep();
 
-$p = $ip->copy;
-$hout = levmar($p,$x,$t, FUNC => $func1, UB => [2.3, .5, 3 ], LB => [ 0,-.1, .5] );
-ok ( tapprox( $hout->{P}, $p_actual ),
-     "UB , LB; Box constraints  ");
-prep();
-
-$p = $ip->copy;
-$hout = levmar($p,$x,$t, FUNC => $func1, UB => [2.3, .5, 3 ], LB => [ 0,-.1, .5], 
-   DERIVATIVE => 'numeric' );
-ok ( tapprox( $hout->{P}, $p_actual ),
-     "UB , LB ; Box constraints, numeric derivative");
-prep();
-
 #$p = $ip->copy;
 #$hout = levmar($p,$x,$t, FUNC => $func1, FIXB => [1,0,0]);
 # something broken here. remove temporarily
@@ -432,6 +420,29 @@ $p = $ip->copy;
 print "# init p " , $p, "\n";
 $hout = levmar($p,$x,$t, FUNC => $func1, FIXB => [1,0,1]);
 ok ( tapprox( $hout->{P}, [2.2, 0.52755091, 1.2] ), "FIXB [1,0,1]");
+prep();
+
+}
+else {
+ok(1);
+ok(1);
+ok(1);
+ok(1);
+ok(1);
+ok(1);
+}
+
+$p = $ip->copy;
+$hout = levmar($p,$x,$t, FUNC => $func1, UB => [2.3, .5, 3 ], LB => [ 0,-.1, .5] );
+ok ( tapprox( $hout->{P}, $p_actual ),
+     "UB , LB; Box constraints  ");
+prep();
+
+$p = $ip->copy;
+$hout = levmar($p,$x,$t, FUNC => $func1, UB => [2.3, .5, 3 ], LB => [ 0,-.1, .5], 
+   DERIVATIVE => 'numeric' );
+ok ( tapprox( $hout->{P}, $p_actual ),
+     "UB , LB ; Box constraints, numeric derivative");
 prep();
 
 
