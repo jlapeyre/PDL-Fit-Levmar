@@ -1,3 +1,4 @@
+# -*-Perl-*-     # for emacs
 use strict;
 use warnings;
 use Carp;
