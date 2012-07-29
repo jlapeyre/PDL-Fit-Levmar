@@ -1,3 +1,9 @@
+libpdl-fit-levmar-perl (0.0096-1) unstable; urgency=low
+
+  * Upstream Release.
+
+ -- John Lapeyre <jlapeyre@cpan.org>  Sun, 29 Jul 2012 15:53:24 +0200
+	
 libpdl-fit-levmar-perl (0.0095-1) unstable; urgency=low
 
   * Upstream Release.
