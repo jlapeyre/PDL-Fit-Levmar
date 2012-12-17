@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Carp;
 
-$PDL::Fit::Levmar::Func::VERSION = '0.0096';
+$PDL::Fit::Levmar::Func::VERSION = '0.0097';
 pp_setversion( "'$PDL::Fit::Levmar::Func::VERSION'");
 
 pp_bless('PDL::Fit::Levmar::Func');  # make the functions generated go into our namespace     
@@ -197,17 +197,27 @@ $PDL::Fit::Levmar::Func::SRC_EXT = ".c";
 #$PDL::Fit::Levmar::Func::SO_EXT = ".so";
 #$PDL::Fit::Levmar::Func::OBJ_EXT = ".o";
 
-sub deb { print STDERR $_[0], "\n";}
+sub deb { 
+ #    print STDERR $_[0], "\n";
+}
+
+sub prwarn { print STDERR $_[0], "\n";}
 
 ##########################################
 # Methods follow
 
+# some kind of stack corruption is related to this function, maybe. no probably not.
+# So, only shift opts if they are there
+#use Data::Dumper;
+
 sub new {
   my($class) = shift;
   my($opts) = shift;
+#  print STDERR "In new class: $class, opts $opts\n";
   if(ref $opts ne 'HASH') { # change opts to hash of opts
     $opts = defined $opts ? {$opts,@_} : {} ;
   }
+#  print Dumper($opts),"\n";
   my $self = { # following are defaults
       MKOBJ => $MKOBJ,
       MKSO => $MKSO,
@@ -511,7 +521,7 @@ sub make_shared_object_file {
     $mkobjstr =~ s/\%c/$srcn/g;
     $mkobjstr =~ s/\%o/$objn/g;    
     $ret = do_system($mkobjstr, $self); # compile c to o
-#    deb "Levmar::Func::make_shared_object_file: compile returned '$ret'";
+    deb "Levmar::Func::make_shared_object_file: compile returned '$ret'";
     if ( $ret != 0) { # zero is success
 	warn "Levmar::Func::make_shared_object_file: Compiling '$srcn' failed.";
 	return 0;
@@ -521,7 +531,7 @@ sub make_shared_object_file {
     $sostr =~ s/\%s/$sobjn/g;
     $sostr =~ s/\%o/$objn/g;
     $ret = do_system($sostr, $self); #  make so from o
-#    deb "Levmar::Func::make_shared_object_file: '$sostr'  make so from o returned '$ret'";   
+    deb "Levmar::Func::make_shared_object_file: '$sostr'  make so from o returned '$ret'";   
     if ( 0 != $ret ) {
 	warn "Levmar::Func::make_shared_object_file: Making shared library '$sobjn' failed.";
 	return 0;
@@ -568,7 +578,6 @@ sub clean_files {
     my $cnt = 0;
     my $srcn = $self->mfqp('SRCNAME'); # fully qualified names
     my $objn = $self->mfqp('OBJNAME');
-#    foreach my $k ( qw ( OBJNAME SONAME )) {
     foreach my $k ( qw ( OBJNAME  )) { # soname needs to be there
 	my $fn = $self->mfqp($k);
 	if (-e $fn) {
@@ -587,22 +596,26 @@ sub clean_files {
 	if ( not -f $srcn ) {
 	    warn "Levmar::Func::clean_files: Source file '$srcn' not a file. Not deleting";
 	}
-	local (*SRCH);
-	open SRCH, '<' , $srcn or die "Levmar::Func::clean_files : Can't open C source file '$srcn' for reading";
-	while (<SRCH>) {
-	    next if /^\s*$/;
-	    if (/\/\* This file Automatically/) {
- 	        close(SRCH);
+	open my $srch , '<' , 
+              $srcn or die "Levmar::Func::clean_files : Can't open C source file '$srcn' for reading";
+        my $closed = 0;
+   # weird stack bug present when using implicit $_ rather than $line.
+   # A function that calls levmar_func sometimes has an item in arg stack
+   # replaced by the first line read here.
+	while (my $line = <$srch>) {
+	    next if $line =~ /^\s*$/;
+	    if ($line =~ /\/\* This file automatically/) {
+ 	        close($srch);
+                $closed = 1;
 		$cnt = 0;
 		$cnt = munlink $srcn;
-		if ( $cnt < 1) {
-		    warn "Levmar::Func::clean_files: cnt $cnt: Failed to delete source file '$srcn'";
-		}
+                warn "Levmar::Func::clean_files: cnt $cnt: Failed to delete source file '$srcn'"
+                    if $cnt < 1;
 		last;
 	    }
 	    last; # only check up to first non-blank line
 	}
-#	close(SRCH);
+	close($srch) unless $closed == 1;
     }
 }
 
@@ -673,16 +686,16 @@ sub munlink {
     my $cnt;
     my $sf = "'$f'";
     if ( not -e $f ) {
-	deb "munlink: $sf does not exist";
+	prwarn "munlink: $sf does not exist";
 	return 0;
     }
     if ( not -f $f ) {
-	deb "munlink: $sf is not a file. Not removing.";
+	prwarn "munlink: $sf is not a file. Not removing.";
 	return 0;
     }
     $cnt = unlink $f;
     if (not $cnt > 0) {
-	deb "munlink: Can't unlink exisiting file $sf";
+	prwarn "munlink: Can't unlink exisiting file $sf";
     }
     return $cnt;
 }
@@ -776,7 +789,7 @@ sub generate_C_source {
                  "  int i;\n" };
 #             "  $dtype *t = ($dtype *) data;\n" };
     my $kode = 
-	"/* This file Automatically created and deleted. Do not edit. */\n".
+	"/* This file automatically created and deleted. Do not edit. */\n" .
 	"#include<math.h>\n#include <stdio.h>\n\n" .
 	join('',@$prefunc);
 
@@ -875,8 +888,13 @@ sub open_and_find {
     my $func_pointer = 0;
     my $nchar = 1000; # avoid buffer overun by sending this number to memccpy
     my $error_message = "." x $nchar;
-    call_open_and_find($lib_name, $func_name, $lib_handle,
+    deb "call_open_and_find for lib $lib_name, func $func_name.";
+#    print STDERR "Nargs 1 ", scalar(@_) , "\n";
+    my @res = call_open_and_find($lib_name, $func_name, $lib_handle,
 		       $func_pointer,  $error_message , $nchar);
+#    print STDERR "Nargs 2 ", scalar(@_) , "\n";
+#    print STDERR ("call_open_and_find returned ", scalar(@res), " items\n.");
+#    print STDERR (@res),"\n";
     return ($func_pointer, $lib_handle, $error_message);
 #    return ($func_pointer, $lib_handle, '');
 }
@@ -886,7 +904,12 @@ sub close_shared_object_file {
     my $nchar = 1000; # avoid buffer overun by sending this number to memccpy
     my $error_message = "." x $nchar;
     my $ret = 0;
-    call_close_shared_object_file( $lib_handle, $ret, $error_message, $nchar);
+    deb "Closing so file.";
+#    print STDERR "Nargs 3 ", scalar(@_) , "\n";
+    my @res = call_close_shared_object_file( $lib_handle, $ret, $error_message, $nchar);
+#    print STDERR "Nargs 4 ", scalar(@_) , "\n";
+#    print STDERR ("close shared returned ", scalar(@res), " items\n.");
+#    print STDERR (@res),"\n";
     return ($ret, $error_message);
 }
 
