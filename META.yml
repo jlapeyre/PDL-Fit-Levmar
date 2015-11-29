@@ -22,4 +22,4 @@ no_index:
     - inc
 requires:
   PDL: 0
-version: 0.0097
+version: 0.0098
