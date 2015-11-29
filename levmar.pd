@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Carp;
 
-$PDL::Fit::Levmar::VERSION = '0.0097';
+$PDL::Fit::Levmar::VERSION = '0.0098';
 pp_setversion( "'$PDL::Fit::Levmar::VERSION'");
 
 
