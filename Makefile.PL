@@ -85,9 +85,7 @@ $s/lmblec\$(OBJ_EXT): $s/lmblec.c $s/lmblec_core.c $s/levmar.h $s/misc.h
 $s/lmbleic\$(OBJ_EXT): $s/lmbleic.c $s/lmbleic_core.c $s/levmar.h $s/misc.h
 $s/lmbc\$(OBJ_EXT): $s/lmbc.c $s/lmbc_core.c $s/levmar.h $s/misc.h
 
-
-Levmar.xs: pdlperlfunc\$(OBJ_EXT)
-
+Levmar\$(OBJ_EXT) Levmar.pm: pdlperlfunc.c
 ".
     pdlpp_postamble($lmpackage)
 }
