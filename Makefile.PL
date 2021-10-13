@@ -65,11 +65,9 @@ $hash{PREREQ_PM} = {
     'PDL' => 0,
 };
 
-$hash{CONFIGURE_REQUIRES} = { 'PDL' => 0 , 'ExtUtils::MakeMaker' => 0 };
-
-$hash{BUILD_REQUIRES} = {
-        'PDL'            => 0,
-        'ExtUtils::MakeMaker' => 0
+$hash{CONFIGURE_REQUIRES} = {
+    'PDL' => '2.4.11',
+    'ExtUtils::MakeMaker' => 0,
 };
 
 {

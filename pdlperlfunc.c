@@ -21,10 +21,10 @@ static SV* CoreSV;       /* Gets pointer to perl var holding core structure */
 // following line useless, i guess
 // typedef void (*levmarfunc)( double *, double *, int, int, void * ) ;
 
-typedef void (*DelMagic)(pdl *, int param);
-static void delete_levmar_pdls(pdl* p, int param);
+typedef void (*DelMagic)(pdl *, Size_t param);
+static void delete_levmar_pdls(pdl* p, Size_t param);
 
-static void default_magic(pdl *p, int pa) { p->data = 0; }
+static void default_magic(pdl *p, Size_t pa) { p->data = 0; }
 static pdl* pdl_wrap(void *data, int datatype, PDL_Indx dims[],
 		     int ndims, DelMagic delete_magic, int delparam);
 static SV *getref_pdl(pdl *it);
@@ -178,7 +178,7 @@ static pdl* pdl_wrap(void *data, int datatype, PDL_Indx dims[],
 }
 
 // Don't free data, it is allocated inside liblevmar
-static void delete_levmar_pdls(pdl* p, int param)
+static void delete_levmar_pdls(pdl* p, Size_t param)
 {
   if (p->data) {
     // free(p->data); 
