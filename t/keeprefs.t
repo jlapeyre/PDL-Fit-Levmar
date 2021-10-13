@@ -4,16 +4,12 @@ use PDL::Fit::Levmar;
 use PDL::Fit::Levmar::Func;
 use PDL::NiceSlice;
 use PDL::Core ':Internal'; # For topdl()
+use Test::More;
 
 use strict;
-use vars ( '$testno', '$ok_count', '$not_ok_count', '@g', '$Gf',
-	   '$Gh', '$Type');
 
 #  @g is global options to levmar
-@g = ( NOCOVAR => undef );
-
-$ok_count = 0;
-$not_ok_count = 0;
+my @g = ( NOCOVAR => undef );
 
 sub tapprox {
         my($a,$b) = @_;
@@ -22,25 +18,9 @@ sub tapprox {
         $d < 0.0001;
 }
 
-sub ok {  
-    my ($v, $s) = @_;
-    $testno = 0 unless defined $testno;	
-    $testno++;
-    $s = '' unless defined $s;
-    if ( not $v ) {
-	print "not ";
-	$s = " *** " . $s;
-	$not_ok_count++;
-    }
-    else {
-	$ok_count++;
-    }
-    print "ok - $testno $s\n";   
-}
-
 # used to check some return types to make sure computaton was float
 sub check_type {
-    my (@d) = @_;
+    my ($Type, @d) = @_;
     my $i=0;
     foreach ( @d )  {
 	die "$i: not $Type" unless $Type == $_->type;
@@ -60,7 +40,7 @@ cpr "# Test implicit threading over lemvar()";
 cpr "# Compiling fit function...";
 
 # Need to use jacobian so fitting is more robust
-$Gf = '
+my $Gf = '
        function
        x = p0 * exp( -t*t * p1);
        jacobian
@@ -80,11 +60,12 @@ $Gf = '
 =cut
 
 
-$Gh = levmar_func(FUNC=>$Gf);
+my $Gh = levmar_func(FUNC=>$Gf);
 
 cpr "# Done compiling fit function.";
 
 sub keep_work_space {
+    my ($Type) = @_;
     my $n = 100;
     my $A = 10;
     my $t = sequence($Type, $n);
@@ -96,19 +77,10 @@ sub keep_work_space {
     my $work = PDL->null;
     my $h = levmar($ip,$x,$t,$Gh,@g, WORK =>$work);
     ok(tapprox($h->{P},$p));
-    check_type($h->{COVAR});
+    check_type($Type, $h->{COVAR});
 }
 
-print "1..2\n";
+keep_work_space(double);
+keep_work_space(float);
 
-print "# type double\n";
-$Type = double;
-keep_work_space();
-
-print "# type float\n";
-
-$Type = float;
-keep_work_space();
-
-
-print "# Ok count: $ok_count, Not ok count: $not_ok_count\n";
+done_testing;

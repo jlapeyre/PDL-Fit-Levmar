@@ -4,19 +4,13 @@ use PDL::Fit::Levmar;
 use PDL::Fit::Levmar::Func;
 use PDL::NiceSlice;
 use PDL::Core ':Internal'; # For topdl()
+use Test::More;
 use strict;
 
 # Tests to check how the arguments are passed to the top level levmar function
 
-use vars ( '$testno', '$ok_count', '$not_ok_count', '@g', '$Gh',
-     '$Gf');
-
 #  @g is global options to levmar
-
-@g = (  );
-
-$ok_count = 0;
-$not_ok_count = 0;
+my @g = (  );
 
 sub tapprox {
         my($a,$b) = @_;
@@ -25,28 +19,12 @@ sub tapprox {
         $d < 0.0001;
 }
 
-sub ok {  
-    my ($v, $s) = @_;
-    $testno = 0 unless defined $testno;	
-    $testno++;
-    $s = '' unless defined $s;
-    if ( not $v ) {
-	print "not ";
-	$s = " *** " . $s;
-	$not_ok_count++;
-    }
-    else {
-	$ok_count++;
-    }
-    print "ok - $testno $s\n";   
-}
-
 sub deb  { print STDERR $_[0],"\n" }
 
 #-----------------------------------------------
 
-$Gf = './t/simple_gaussian.lpp';
-$Gh = levmar_func(FUNC => $Gf);
+my $Gf = './t/simple_gaussian.lpp';
+my $Gh = levmar_func(FUNC => $Gf);
 
 sub make_gaussian_data {
     my $n = 100;
@@ -109,9 +87,7 @@ sub t_order_args {
 
 }
 
-print "1..28\n";
-
 t_getopts();
 t_order_args();
 
-print "# Ok count: $ok_count, Not ok count: $not_ok_count\n";
+done_testing;
