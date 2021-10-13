@@ -33,7 +33,6 @@ levmar-2.5/levmar.vcproj
 levmar-2.5/LICENSE
 levmar-2.5/lmbc.c
 levmar-2.5/lmbc_core.c
-levmar-2.5/lmbc_core.c.new
 levmar-2.5/lmblec.c
 levmar-2.5/lmblec_core.c
 levmar-2.5/lmbleic.c
@@ -45,7 +44,6 @@ levmar-2.5/lmdemo.vcproj
 levmar-2.5/lm.h
 levmar-2.5/lmlec.c
 levmar-2.5/lmlec_core.c
-levmar-2.5/lmlec_core.c.new
 levmar-2.5/Makefile
 levmar-2.5/Makefile.icc
 levmar-2.5/Makefile.so
