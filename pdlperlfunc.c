@@ -53,39 +53,6 @@ typedef struct {
   int datatype;
 } DFP;
 
-/*  moved to xs
-// called from  sub levmar
-DFP * _DFP_create () {
-  DFP * dat;
-  dat = (DFP *)malloc(sizeof( DFP ));
-  if ( NULL == dat ) {
-    fprintf(stderr, "Can't allocate storage for dat in DFP_create\n");
-    exit(1);
-  }
-  return dat;
-}
-*/
-
-/*
-// called from sub levmar
-int _DFP_free (DFP *dat) {
-  if ( dat ) {
-    free(dat);
-  }
-}
-*/
-
-/* moved into xs
-void DFP_set_perl_funcs ( DFP *dat, SV* perl_fit_func, SV* perl_jac_func ) {
-  if ( dat == NULL ) {
-    fprintf(stderr, "DFP_set_perl_funcs got null struct\n");
-    exit(1);
-  }
-  dat->perl_fit_func = perl_fit_func;
-  dat->perl_jac_func = perl_jac_func;
-}
-*/
-
 void DFP_create_pdls( DFP *dat, int data_type, int m, int n, int nt) {
 
   pdl *p_pdl, *x_pdl, *d_pdl, *t_pdl;
