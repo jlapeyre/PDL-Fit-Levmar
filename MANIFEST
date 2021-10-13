@@ -95,4 +95,3 @@ t/ndim.t
 t/simple_gaussian.lpp
 t/syntax.t.d
 TODO
-META.yml                                 Module meta-data (added by MakeMaker)
