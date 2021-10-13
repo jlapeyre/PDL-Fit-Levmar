@@ -57,13 +57,14 @@ foreach my $f (@lm_base) {
 }
 
 $hash{clean}{FILES} .= " " . $hash{OBJECT} .
-		" *.o *.so have_lapack Levmar.html tempcode/* tempcode Func/tempcode/* Func/tempcode have_lapack ";
+		" *.o *.so have_lapack Levmar.html have_lapack ";
 
 $hash{OPTIMIZE} = " -O3 --unroll-loops ";  # from levmar src Makefile
 #$hash{OPTIMIZE} = " -O2  ";
 
 $hash{PREREQ_PM} = { 
     'PDL' => 0,
+    'File::Temp' => 0,
 };
 
 $hash{CONFIGURE_REQUIRES} = {

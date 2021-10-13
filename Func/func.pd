@@ -151,6 +151,7 @@ $MKOBJ = $Config{cc} . " -c " . $Config{optimize} . " " .
 # string  to compile .o to .so 
 $MKSO = $Config{ld} . " " . $Config{lddlflags} ." %o -o %s ";
 
+use File::Temp qw(tempdir);
 
 ======EOD_Documentation======
 
@@ -228,7 +229,7 @@ sub new {
       NOSO => undef,
       CSRC => undef,
       CTOP => undef,
-      DIR =>  "./tempcode" , # where the .so is built
+      DIR => tempdir( CLEANUP => 1 ), # where the .so is built
       TESTSYNTAX => undef,
       LIBHANDLE => undef,
       FVERBOSE => 0,
