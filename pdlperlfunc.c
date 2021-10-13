@@ -13,14 +13,6 @@
 typedef PDL_Long PDL_Indx;
 #endif
 
-#include <stdio.h>
-
-static Core* PDL; /* Structure holds core C functions */
-static SV* CoreSV;       /* Gets pointer to perl var holding core structure */
-
-// following line useless, i guess
-// typedef void (*levmarfunc)( double *, double *, int, int, void * ) ;
-
 typedef void (*DelMagic)(pdl *, Size_t param);
 static void delete_levmar_pdls(pdl* p, Size_t param);
 

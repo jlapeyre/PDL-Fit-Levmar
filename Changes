@@ -1,3 +1,5 @@
+- fix for PDL >2.057
+
 0.0100 2018-03-24
 - CPAN indexing fixes
 - fix func.pd with pp_done() - thanks @shawnlaffan
