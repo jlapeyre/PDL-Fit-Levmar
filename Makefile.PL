@@ -51,12 +51,13 @@ else {
 
 $hash{DIR} = [ 'Func' ];
 
-foreach my $f (qw( lm Axb misc lmlec lmbc lmblec lmbleic ) ){
+my @lm_base = qw(lm Axb misc lmlec lmblec lmbleic lmbc);
+foreach my $f (@lm_base) {
     $hash{OBJECT} .= " $levmarsrc/$f\$(OBJ_EXT) ";
 }
 
-$hash{clean} = {FILES => $hash{clean}->{FILES} . " " . $hash{OBJECT} .
-		" *.o *.so have_lapack Levmar.html tempcode/* tempcode Func/tempcode/* Func/tempcode have_lapack " };
+$hash{clean}{FILES} .= " " . $hash{OBJECT} .
+		" *.o *.so have_lapack Levmar.html tempcode/* tempcode Func/tempcode/* Func/tempcode have_lapack ";
 
 $hash{OPTIMIZE} = " -O3 --unroll-loops ";  # from levmar src Makefile
 #$hash{OPTIMIZE} = " -O2  ";
@@ -75,18 +76,8 @@ $hash{CONFIGURE_REQUIRES} = {
     my $s =  $levmarsrc;
 
 sub MY::postamble {
-"
-
-$s/lm\$(OBJ_EXT): $s/lm.c $s/lm_core.c $s/levmar.h $s/misc.h
-$s/Axb\$(OBJ_EXT): $s/Axb.c $s/Axb_core.c $s/levmar.h $s/misc.h
-$s/misc\$(OBJ_EXT): $s/misc.c $s/misc_core.c $s/levmar.h $s/misc.h
-$s/lmlec\$(OBJ_EXT): $s/lmlec.c $s/lmlec_core.c $s/levmar.h $s/misc.h
-$s/lmblec\$(OBJ_EXT): $s/lmblec.c $s/lmblec_core.c $s/levmar.h $s/misc.h
-$s/lmbleic\$(OBJ_EXT): $s/lmbleic.c $s/lmbleic_core.c $s/levmar.h $s/misc.h
-$s/lmbc\$(OBJ_EXT): $s/lmbc.c $s/lmbc_core.c $s/levmar.h $s/misc.h
-
-Levmar\$(OBJ_EXT) Levmar.pm: pdlperlfunc.c
-".
+    join('', map "$s/$_\$(OBJ_EXT): $s/$_.c $s/${_}_core.c $s/levmar.h $s/misc.h\n", @lm_base).
+    "\nLevmar\$(OBJ_EXT) Levmar.pm: pdlperlfunc.c\n".
     pdlpp_postamble($lmpackage)
 }
 
