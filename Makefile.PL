@@ -40,7 +40,7 @@ if ( $HAVE_LAPACK ) {
 else {
     $hash{LIBS}  = $^O =~ /MSWin32/i ? 
         [ ' -L.. -lm  -LC:/strawberry/c/lib/gcc/x86_64-w64-mingw32/4.6.3/ -lgfortran ']  :
-        [ ' '];
+        [ ''];
 }
 
 # These are some other possibilities, eg if f2c (f77) was used to compile lapack
