@@ -3,6 +3,7 @@
 - use Test::More
 - fix compile warnings
 - use File::Temp not hardcoded "tempcode" dir
+- use SetSV_PDL not copy-paste from pdlcore.c
 
 0.0100 2018-03-24
 - CPAN indexing fixes
