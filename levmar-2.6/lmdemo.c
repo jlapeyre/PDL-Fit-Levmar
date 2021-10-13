@@ -780,8 +780,8 @@ register int j=0;
 }
 
 
-// pass an int for the problem number
-int main( int argc, char *argv[] )
+
+int main()
 {
 register int i, j;
 int problem, ret;
@@ -818,19 +818,12 @@ char *probname[]={
   //opts[4]=-LM_DIFF_DELTA; // specifies central differencing to approximate Jacobian; more accurate but more expensive to compute!
 
   /* uncomment the appropriate line below to select a minimization problem */
-
-
-  if ( argc < 2 )  {
-    fprintf(stderr, "Supply an integer specifying problem number as command line argument\n");
-           exit(1);
-  }
-
-  problem = atoi(argv[1]);
+  problem=
 		  //0; // Rosenbrock function
 		  //1; // modified Rosenbrock problem
 		  //2; // Powell's function
       //3; // Wood's function
-    //		  4; // Meyer's (reformulated) problem
+		  4; // Meyer's (reformulated) problem
 		  //5; // Osborne's problem
       //6; // helical valley function
 #ifdef HAVE_LAPACK
@@ -858,8 +851,7 @@ char *probname[]={
       //19; // Hock - Schittkowski modified #2 problem 52
       //20; // Hock - Schittkowski modified problem #76"
 #endif /* HAVE_LAPACK */
-
-  
+				
   switch(problem){
   default: fprintf(stderr, "unknown problem specified (#%d)! Note that some minimization problems require LAPACK.\n", problem);
            exit(1);
@@ -1046,7 +1038,7 @@ char *probname[]={
       lb[0]=-DBL_MAX; lb[1]=-1.5;
       ub[0]=ub[1]=DBL_MAX;
 
-      ret=dlevmar_bc_der(hs01, jachs01, p, x, m, n, lb, ub, 1000, opts, info, NULL, NULL, NULL); // with analytic Jacobian
+      ret=dlevmar_bc_der(hs01, jachs01, p, x, m, n, lb, ub, NULL, 1000, opts, info, NULL, NULL, NULL); // with analytic Jacobian
     }
     break;
 
@@ -1062,7 +1054,7 @@ char *probname[]={
       lb[0]=2.0; lb[1]=-50.0;
       ub[0]=50.0; ub[1]=50.0;
 
-      ret=dlevmar_bc_der(hs21, jachs21, p, x, m, n, lb, ub, 1000, opts, info, NULL, NULL, NULL); // with analytic Jacobian
+      ret=dlevmar_bc_der(hs21, jachs21, p, x, m, n, lb, ub, NULL, 1000, opts, info, NULL, NULL, NULL); // with analytic Jacobian
     }
     break;
 
@@ -1080,7 +1072,7 @@ char *probname[]={
       ub[0]=ub[2]=ub[3]=DBL_MAX;
       ub[1]=0.8;
 
-      ret=dlevmar_bc_der(hatfldb, jachatfldb, p, x, m, n, lb, ub, 1000, opts, info, NULL, NULL, NULL); // with analytic Jacobian
+      ret=dlevmar_bc_der(hatfldb, jachatfldb, p, x, m, n, lb, ub, NULL, 1000, opts, info, NULL, NULL, NULL); // with analytic Jacobian
     }
     break;
 
@@ -1097,7 +1089,7 @@ char *probname[]={
 
       ub[0]=ub[1]=ub[2]=ub[3]=10.0;
 
-      ret=dlevmar_bc_der(hatfldc, jachatfldc, p, x, m, n, lb, ub, 1000, opts, info, NULL, NULL, NULL); // with analytic Jacobian
+      ret=dlevmar_bc_der(hatfldc, jachatfldc, p, x, m, n, lb, ub, NULL, 1000, opts, info, NULL, NULL, NULL); // with analytic Jacobian
     }
     break;
 
@@ -1114,7 +1106,7 @@ char *probname[]={
 
       ub[0]=ub[1]=ub[2]=ub[3]=ub[4]=100.0;
 
-      ret=dlevmar_bc_der(combust, jaccombust, p, x, m, n, lb, ub, 5000, opts, info, NULL, NULL, NULL); // with analytic Jacobian
+      ret=dlevmar_bc_der(combust, jaccombust, p, x, m, n, lb, ub, NULL, 5000, opts, info, NULL, NULL, NULL); // with analytic Jacobian
     }
     break;
 
@@ -1193,11 +1185,7 @@ char *probname[]={
       double C[3*5]={1.0, 3.0, 0.0, 0.0, 0.0,  0.0, 0.0, 1.0, 1.0, -2.0,  0.0, -1.0, 0.0, 0.0, 1.0},
              d[3]={-1.0, -2.0, -7.0};
 
-             //      ret=dlevmar_bleic_der(mod2hs52, jacmod2hs52, p, x, m, n, NULL, NULL, NULL, NULL, 0, C, d, 3, 1000, opts, info, NULL, NULL, NULL); // lin. ineq. constraints, analytic Jacobian
-
-
-        ret=dlevmar_lic_der(mod2hs52, jacmod2hs52, p, x, m, n, C, d, 3, 1000, opts, info, NULL, NULL, NULL); // lin. ineq. constraints, analytic Jacobian
-      
+      ret=dlevmar_bleic_der(mod2hs52, jacmod2hs52, p, x, m, n, NULL, NULL, NULL, NULL, 0, C, d, 3, 1000, opts, info, NULL, NULL, NULL); // lin. ineq. constraints, analytic Jacobian
       //ret=dlevmar_bleic_dif(mod2hs52, p, x, m, n, NULL, NULL, NULL, NULL, 0, C, d, 3, 1000, opts, info, NULL, NULL, NULL); // lin. ineq. constraints, no Jacobian
     }
     break;
