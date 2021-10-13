@@ -2,6 +2,7 @@
 - build fixes
 - use Test::More
 - fix compile warnings
+- use File::Temp not hardcoded "tempcode" dir
 
 0.0100 2018-03-24
 - CPAN indexing fixes
