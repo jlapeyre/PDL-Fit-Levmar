@@ -221,32 +221,10 @@ int LEVMAR_BLEC_DER(
                       * Set to NULL if not needed
                       */
 {
-
-  register int i;
-
-  int j;
-  
-  for(j=0; j < m; ++j) {
-    //    fprintf(stderr,"lmblec_core: p[%d]=%e\n",j,p[j]);
-  }
-
-  for(j=0; j<n; ++j) {
-    //      fprintf(stderr,"lmblec_core: x[%d]=%e\n",j,x[j]);
-  }  
-
-  for(i=0; i<k; ++i){
-    for(j=0; j<m; ++j) {
-      //      fprintf(stderr,"lmblec_core: A[%d,%d]=%e\n",i,j,A[i*m+j]);
-    }
-  }
-  
-  for(i=0; i<k; ++i){
-    //    fprintf(stderr,"lmblec_core: b[%d]=%e\n",i,b[i]);
-  }
-
   struct LMBLEC_DATA data;
   int ret;
   LM_REAL locinfo[LM_INFO_SZ];
+  register int i;
 
   if(!jacf){
     fprintf(stderr, RCAT("No function specified for computing the Jacobian in ", LEVMAR_BLEC_DER)
@@ -306,13 +284,11 @@ int LEVMAR_BLEC_DER(
   data.adata=adata;
 
   if(!info) info=locinfo; /* make sure that LEVMAR_LEC_DER() is called with non-null info */
-  //  fprintf(stderr, "lmblec_core: entering levmar_lec_der\n");  
   ret=LEVMAR_LEC_DER(LMBLEC_FUNC, LMBLEC_JACF, p, data.x, m, n+m, A, b, k, itmax, opts, info, work, covar, (void *)&data);
-  //  fprintf(stderr, "lmblec_core: exiting levmar_lec_der\n");  
-  //  fprintf(stderr, "lmblec_core: freeing at end \n");
+
   if(data.x) free(data.x);
   free(data.w);
-  //  fprintf(stderr, "lmblec_core: finished freeing \n");
+
   return ret;
 }
 

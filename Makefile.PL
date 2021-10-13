@@ -18,7 +18,7 @@ open my $fh, '>','have_lapack' or die "Can't open config file have_lapack for wr
 print $fh "\$HAVE_LAPACK=$HAVE_LAPACK;\n1\n";
 close($fh);
 
-my $levmarsrc = "./levmar-2.5";
+my $levmarsrc = "./levmar-2.6";
 my $lmpackage = ["levmar.pd", 'Levmar', 'PDL::Fit::Levmar'];
 
 my %hash = pdlpp_stdargs($lmpackage);

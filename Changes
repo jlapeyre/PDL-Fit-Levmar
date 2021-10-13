@@ -4,6 +4,7 @@
 - fix compile warnings
 - use File::Temp not hardcoded "tempcode" dir
 - use SetSV_PDL not copy-paste from pdlcore.c
+- upgrade upstream source to levmar 2.6 (with HAVE_LAPACK commented out)
 
 0.0100 2018-03-24
 - CPAN indexing fixes
