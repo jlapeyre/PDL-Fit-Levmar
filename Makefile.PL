@@ -71,6 +71,10 @@ $hash{CONFIGURE_REQUIRES} = {
     'ExtUtils::MakeMaker' => 0,
 };
 
+$hash{TEST_REQUIRES} = {
+    'Test::More' => '0.88',
+};
+
 {
 # This should be done more elegantly
     my $s =  $levmarsrc;

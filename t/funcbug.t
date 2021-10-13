@@ -1,10 +1,10 @@
 use strict;
 use warnings;
-use Test::More tests => 2;
+use Test::More;
 use PDL::Fit::Levmar::Func;
 
 # gjl dec 2012
-# Supplied be Edward Baudrez to trigger a bug.
+# Supplied by Edward Baudrez to trigger a bug.
 # The funcion f gets a single arg. But after the call
 # to levmar func, @_ is replaced with the first line
 # of the generated C file. I still don't understand where
@@ -20,3 +20,5 @@ sub f
 my $array = [ 3 ];
 f( $_ ) for @$array;
 f( $_ ) for 3;
+
+done_testing;
