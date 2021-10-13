@@ -70,23 +70,22 @@ void DFP_create_pdls( DFP *dat, int data_type, int m, int n, int nt) {
   PDL_Indx nt_dims[] = {nt};
   int num_nt_dims = 1;
 
-
   // create pdls, but with no data;
   p_pdl = pdl_wrap(NULL, data_type, mf_dims, num_mf_dims, delete_levmar_pdls, 0);
   d_pdl = pdl_wrap(NULL, data_type, mjac_dims, num_mjac_dims, delete_levmar_pdls, 0);
   x_pdl = pdl_wrap(NULL, data_type, n_dims, num_n_dims, delete_levmar_pdls, 0);
   t_pdl = pdl_wrap(NULL, data_type, nt_dims, num_nt_dims, delete_levmar_pdls, 0);
-  
-  p_sv = getref_pdl(p_pdl);
-  d_sv = getref_pdl(d_pdl);
-  x_sv = getref_pdl(x_pdl);
-  t_sv = getref_pdl(t_pdl);
 
   // otherwise we get a memory leak
-  sv_2mortal(p_sv);
-  sv_2mortal(d_sv);
-  sv_2mortal(x_sv);
-  sv_2mortal(t_sv);
+  p_sv = sv_newmortal();
+  d_sv = sv_newmortal();
+  x_sv = sv_newmortal();
+  t_sv = sv_newmortal();
+
+  PDL->SetSV_PDL(p_sv, p_pdl);
+  PDL->SetSV_PDL(d_sv, d_pdl);
+  PDL->SetSV_PDL(x_sv, x_pdl);
+  PDL->SetSV_PDL(t_sv, t_pdl);
 
   dat->p_pdl = p_pdl;
   dat->d_pdl = d_pdl;
@@ -146,28 +145,6 @@ static void delete_levmar_pdls(pdl* p, Size_t param)
      }
   p->data = 0;
 }
-
-/* Had to cut and paste from pdlcore.c
- * Is this routine somehow otherwise available ?
- * This returns  SV *ref, giving access to the
- * pdl *it as a perl scalar. 
- */
-static SV *getref_pdl(pdl *it) {
-	SV *newref;
-	if(!it->sv) {
-		SV *ref;
-		HV *stash = gv_stashpv("PDL",TRUE);
-		SV *psv = newSViv(PTR2IV(it));
-		it->sv = psv;
-		newref = newRV_noinc(it->sv);
-		(void)sv_bless(newref,stash);
-	} else {
-		newref = newRV_inc(it->sv);
-		SvAMAGIC_on(newref);
-	}
-	return newref;
-}
-
 
 //-----------------------------------------------------
 // Modified Function from pdl gsl interp code
