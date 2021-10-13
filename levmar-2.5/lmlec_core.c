@@ -414,8 +414,6 @@ int LEVMAR_LEC_DER(
   register LM_REAL tmp;
   LM_REAL locinfo[LM_INFO_SZ];
 
-
-  
   if(!jacf){
     fprintf(stderr, RCAT("No function specified for computing the Jacobian in ", LEVMAR_LEC_DER)
       RCAT("().\nIf no such function is available, use ", LEVMAR_LEC_DIF) RCAT("() rather than ", LEVMAR_LEC_DER) "()\n");
@@ -479,10 +477,8 @@ int LEVMAR_LEC_DER(
 
   if(!info) info=locinfo; /* make sure that LEVMAR_DER() is called with non-null info */
   /* note that covariance computation is not requested from LEVMAR_DER() */
-
-  //  fprintf(stderr, "lmlec_core: entering levmar_der\n");
   ret=LEVMAR_DER(LMLEC_FUNC, LMLEC_JACF, pp, x, mm, n, itmax, opts, info, work, NULL, (void *)&data);
-  //  fprintf(stderr, "lmlec_core: exiting levmar_der\n");
+
   /* p=c + Z*pp */
   for(i=0; i<m; ++i){
     Zimm=Z+i*mm;
