@@ -151,6 +151,7 @@ $MKOBJ = $Config{cc} . " -c " . $Config{optimize} . " " .
 # string  to compile .o to .so 
 $MKSO = $Config{ld} . " " . $Config{lddlflags} ." %o -o %s ";
 
+use File::Temp qw(tempdir);
 
 ======EOD_Documentation======
 
@@ -228,7 +229,7 @@ sub new {
       NOSO => undef,
       CSRC => undef,
       CTOP => undef,
-      DIR =>  "./tempcode" , # where the .so is built
+      DIR => tempdir( CLEANUP => !$opts->{NOCLEAN} ), # where the .so is built
       TESTSYNTAX => undef,
       LIBHANDLE => undef,
       FVERBOSE => 0,
@@ -1006,6 +1007,9 @@ pp_def ( '_callj1' ,
 # I don't know how portable this is. It relies on ints and pointers being the
 # same size.
 
+pp_addhdr('
+void   _close_shared_object_file( void ** lib_handle, int * rval, char * error_message, int nchar );
+');
 pp_addxs ( '', '
 
 MODULE = PDL::Fit::Levmar::Func PACKAGE = PDL::Fit::Levmar::Func

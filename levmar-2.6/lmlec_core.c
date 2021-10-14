@@ -48,6 +48,9 @@ struct LMLEC_DATA{
 };
 
 /* prototypes for LAPACK routines */
+#ifdef __cplusplus
+extern "C" {
+#endif
 extern int GEQP3(int *m, int *n, LM_REAL *a, int *lda, int *jpvt,
                    LM_REAL *tau, LM_REAL *work, int *lwork, int *info);
 
@@ -55,6 +58,9 @@ extern int ORGQR(int *m, int *n, int *k, LM_REAL *a, int *lda, LM_REAL *tau,
                    LM_REAL *work, int *lwork, int *info);
 
 extern int TRTRI(char *uplo, char *diag, int *n, LM_REAL *a, int *lda, int *info);
+#ifdef __cplusplus
+}
+#endif
 
 /*
  * This function implements an elimination strategy for linearly constrained
@@ -176,16 +182,17 @@ register int i, j, k;
   }
 
   /* compute the permuted inverse transpose of R */
-  /* first, copy R from the upper triangular part of a to r. R is rank x rank */
+  /* first, copy R from the upper triangular part of a to the lower part of r (thus transposing it). R is rank x rank */
   for(j=0; j<rank; ++j){
     for(i=0; i<=j; ++i)
-      r[i+j*rank]=a[i+j*tm];
+      r[j+i*rank]=a[i+j*tm];
     for(i=j+1; i<rank; ++i)
-      r[i+j*rank]=0.0; // lower part is zero
+      r[j+i*rank]=0.0; // upper part is zero
   }
+  /* r now contains R^T */
 
   /* compute the inverse */
-  TRTRI("U", "N", (int *)&rank, r, (int *)&rank, &info);
+  TRTRI("L", "N", (int *)&rank, r, (int *)&rank, &info);
   /* error checking */
   if(info!=0){
     if(info<0){
@@ -196,14 +203,6 @@ register int i, j, k;
     }
     free(buf);
     return LM_ERROR;
-  }
-  /* then, transpose r in place */
-  for(i=0; i<rank; ++i)
-    for(j=i+1; j<rank; ++j){
-      tmp=r[i+j*rank];
-      k=j+i*rank;
-      r[i+j*rank]=r[k];
-      r[k]=tmp;
   }
 
   /* finally, permute R^-T using Y as intermediate storage */
@@ -414,8 +413,6 @@ int LEVMAR_LEC_DER(
   register LM_REAL tmp;
   LM_REAL locinfo[LM_INFO_SZ];
 
-
-  
   if(!jacf){
     fprintf(stderr, RCAT("No function specified for computing the Jacobian in ", LEVMAR_LEC_DER)
       RCAT("().\nIf no such function is available, use ", LEVMAR_LEC_DIF) RCAT("() rather than ", LEVMAR_LEC_DER) "()\n");
@@ -472,17 +469,15 @@ int LEVMAR_LEC_DER(
     Zimm=Z+i*mm;
     for(j=0, tmp=data.c[i]; j<mm; ++j)
       tmp+=Zimm[j]*pp[j]; // tmp+=Z[i*mm+j]*pp[j];
-    //    if(FABS(tmp-p0[i])>LM_CNST(1E-03))
-    //      fprintf(stderr, RCAT("Warning: component %d of starting point not feasible in ", LEVMAR_LEC_DER) "()! [%.10g reset to %.10g]\n",
-    //                      i, p0[i], tmp);
+    if(FABS(tmp-p0[i])>LM_CNST(1E-03))
+      fprintf(stderr, RCAT("Warning: component %d of starting point not feasible in ", LEVMAR_LEC_DER) "()! [%.10g reset to %.10g]\n",
+                      i, p0[i], tmp);
   }
 
   if(!info) info=locinfo; /* make sure that LEVMAR_DER() is called with non-null info */
   /* note that covariance computation is not requested from LEVMAR_DER() */
-
-  //  fprintf(stderr, "lmlec_core: entering levmar_der\n");
   ret=LEVMAR_DER(LMLEC_FUNC, LMLEC_JACF, pp, x, mm, n, itmax, opts, info, work, NULL, (void *)&data);
-  //  fprintf(stderr, "lmlec_core: exiting levmar_der\n");
+
   /* p=c + Z*pp */
   for(i=0; i<m; ++i){
     Zimm=Z+i*mm;
@@ -600,9 +595,9 @@ int LEVMAR_LEC_DIF(
     Zimm=Z+i*mm;
     for(j=0, tmp=data.c[i]; j<mm; ++j)
       tmp+=Zimm[j]*pp[j]; // tmp+=Z[i*mm+j]*pp[j];
-    //    if(FABS(tmp-p0[i])>LM_CNST(1E-03))
-      //      fprintf(stderr, RCAT("Warning: component %d of starting point not feasible in ", LEVMAR_LEC_DIF) "()! [%.10g reset to %.10g]\n",
-      //                      i, p0[i], tmp);
+    if(FABS(tmp-p0[i])>LM_CNST(1E-03))
+      fprintf(stderr, RCAT("Warning: component %d of starting point not feasible in ", LEVMAR_LEC_DIF) "()! [%.10g reset to %.10g]\n",
+                      i, p0[i], tmp);
   }
 
   if(!info) info=locinfo; /* make sure that LEVMAR_DIF() is called with non-null info */

@@ -144,45 +144,16 @@ int LEVMAR_BLEIC_DER(
                       * Set to NULL if not needed
                       */
 {
-
-  register int i, j, ii;
-
-
-  for(j=0; j < m; ++j) {
-    //    fprintf(stderr,"lmbleic_core: p[%d]=%e\n",j,p[j]);
-  }
-
-  for(j=0; j<n; ++j) {
-    //      fprintf(stderr,"lmbleic_core: x[%d]=%e\n",j,x[j]);
-  }  
-
-  for(i=0; i<k2; ++i){
-    for(j=0; j<m; ++j) {
-      //      fprintf(stderr,"lmbleic_core: C[%d,%d]=%e\n",i,j,C[i*m+j]);
-    }
-  }
-  
-  for(i=0; i<k2; ++i){
-    //    fprintf(stderr,"lmbleic_core: d[%d]=%e\n",i,d[i]);
-  }
-
-  
   struct LMBLEIC_DATA data;
   LM_REAL *ptr, *pext, *Aext, *bext, *covext; /* corresponding to p, A, b, covar for the full set of variables;
                                                  pext=[p, surplus], pext is mm, Aext is (k1+k2)xmm, bext (k1+k2), covext is mmxmm
                                                */
   LM_REAL *lbext, *ubext; // corresponding to lb, ub for the full set of variables
   int mm, ret, k12;
+  register int i, j, ii;
   register LM_REAL tmp;
   LM_REAL locinfo[LM_INFO_SZ];
-  /*
-  fprintf(stderr,"lmbleic_core: Dims n=%d, m=%d, k1=%d, k2=%d, itmax=%d\n",n,m,k1,k2,itmax);
-  if ( ! A ) fprintf(stderr,"lmbleic_core: A null\n");
-  if ( ! b ) fprintf(stderr,"lmbleic_core: b null\n");
-  if ( ! ub ) fprintf(stderr,"lmbleic_core: ub null\n");
-  if ( ! lb ) fprintf(stderr,"lmbleic_core: lb null\n");
-  if ( ! work ) fprintf(stderr,"lmbleic_core: work null\n");
-  */
+
   if(!jacf){
     fprintf(stderr, RCAT("No function specified for computing the Jacobian in ", LEVMAR_BLEIC_DER)
       RCAT("().\nIf no such function is available, use ", LEVMAR_BLEIC_DIF) RCAT("() rather than ", LEVMAR_BLEIC_DER) "()\n");
@@ -225,10 +196,8 @@ int LEVMAR_BLEIC_DER(
    * y is stored in the last k2 elements of pext
    */
   for(i=0; i<k2; ++i){
-    for(j=0, tmp=0.0; j<m; ++j) {
-      //      fprintf(stderr,"C[%d,%d]=%e\n",i,j,C[i*m+j]);
+    for(j=0, tmp=0.0; j<m; ++j)
       tmp+=C[i*m+j]*p[j];
-    }
     pext[j=i+m]=tmp-d[i];
 
     /* surplus variables must be >=0 */
@@ -266,17 +235,13 @@ int LEVMAR_BLEIC_DER(
     bext[ii]=d[i];
   }
 
-  //  fprintf(stderr, "lmbleic_core: entering levmar_blec_der\n");
   if(!info) info=locinfo; /* make sure that LEVMAR_BLEC_DER() is called with non-null info */
   /* note that the default weights for the penalty terms are being used below */
   ret=LEVMAR_BLEC_DER(LMBLEIC_FUNC, LMBLEIC_JACF, pext, x, mm, n, lbext, ubext, Aext, bext, k12, NULL, itmax, opts, info, work, covext, (void *)&data);
-  //  fprintf(stderr, "lmbleic_core: exiting levmar_blec_der\n");  
+
   /* copy back the minimizer */
-  for(i=0; i<m; ++i) {
+  for(i=0; i<m; ++i)
     p[i]=pext[i];
-    //    fprintf(stderr,"p[%d]=%e\n", i,p[i]);
-    //    fflush(stderr);
-  }
 
 #if 0
 printf("Surplus variables for the minimizer:\n");
@@ -292,19 +257,8 @@ printf("\n\n");
     }
   }
 
-  //  fprintf(stderr, "lmbleic_core: pointer ptr %p, pext %p, p %p\n",ptr,pext,p);
-  //  if ( ptr == NULL ) fprintf(stderr,"lmbleic_core: ptr null at end!\n");
-  /*
-  if ( ptr != NULL ) {
-    fprintf(stderr,"lmbleic_core: freeing pext\n");
-    free(ptr);
-    fprintf(stderr, "lmbleic_core: new val pointer ptr %p, pext %p\n",ptr,pext);
-    //    exit(0);
-  }
-  */
   free(ptr);
-  //  fprintf(stderr, "lmbleic_core: Finished\n");
-  //  fflush(stderr);
+
   return ret;
 }
 

@@ -18,7 +18,7 @@ open my $fh, '>','have_lapack' or die "Can't open config file have_lapack for wr
 print $fh "\$HAVE_LAPACK=$HAVE_LAPACK;\n1\n";
 close($fh);
 
-my $levmarsrc = "./levmar-2.5";
+my $levmarsrc = "./levmar-2.6";
 my $lmpackage = ["levmar.pd", 'Levmar', 'PDL::Fit::Levmar'];
 
 my %hash = pdlpp_stdargs($lmpackage);
@@ -40,7 +40,7 @@ if ( $HAVE_LAPACK ) {
 else {
     $hash{LIBS}  = $^O =~ /MSWin32/i ? 
         [ ' -L.. -lm  -LC:/strawberry/c/lib/gcc/x86_64-w64-mingw32/4.6.3/ -lgfortran ']  :
-        [ ' '];
+        [ ''];
 }
 
 # These are some other possibilities, eg if f2c (f77) was used to compile lapack
@@ -51,25 +51,29 @@ else {
 
 $hash{DIR} = [ 'Func' ];
 
-foreach my $f (qw( lm Axb misc lmlec lmbc lmblec lmbleic ) ){
+my @lm_base = qw(lm Axb misc lmlec lmblec lmbleic lmbc);
+foreach my $f (@lm_base) {
     $hash{OBJECT} .= " $levmarsrc/$f\$(OBJ_EXT) ";
 }
 
-$hash{clean} = {FILES => $hash{clean}->{FILES} . " " . $hash{OBJECT} .
-		" *.o *.so have_lapack Levmar.html tempcode/* tempcode Func/tempcode/* Func/tempcode have_lapack " };
+$hash{clean}{FILES} .= " " . $hash{OBJECT} .
+		" *.o *.so have_lapack Levmar.html have_lapack ";
 
 $hash{OPTIMIZE} = " -O3 --unroll-loops ";  # from levmar src Makefile
 #$hash{OPTIMIZE} = " -O2  ";
 
 $hash{PREREQ_PM} = { 
     'PDL' => 0,
+    'File::Temp' => 0,
 };
 
-$hash{CONFIGURE_REQUIRES} = { 'PDL' => 0 , 'ExtUtils::MakeMaker' => 0 };
+$hash{CONFIGURE_REQUIRES} = {
+    'PDL' => '2.4.11',
+    'ExtUtils::MakeMaker' => 0,
+};
 
-$hash{BUILD_REQUIRES} = {
-        'PDL'            => 0,
-        'ExtUtils::MakeMaker' => 0
+$hash{TEST_REQUIRES} = {
+    'Test::More' => '0.88',
 };
 
 {
@@ -77,20 +81,8 @@ $hash{BUILD_REQUIRES} = {
     my $s =  $levmarsrc;
 
 sub MY::postamble {
-"
-
-$s/lm\$(OBJ_EXT): $s/lm.c $s/lm_core.c $s/levmar.h $s/misc.h
-$s/Axb\$(OBJ_EXT): $s/Axb.c $s/Axb_core.c $s/levmar.h $s/misc.h
-$s/misc\$(OBJ_EXT): $s/misc.c $s/misc_core.c $s/levmar.h $s/misc.h
-$s/lmlec\$(OBJ_EXT): $s/lmlec.c $s/lmlec_core.c $s/levmar.h $s/misc.h
-$s/lmblec\$(OBJ_EXT): $s/lmblec.c $s/lmblec_core.c $s/levmar.h $s/misc.h
-$s/lmbleic\$(OBJ_EXT): $s/lmbleic.c $s/lmbleic_core.c $s/levmar.h $s/misc.h
-$s/lmbc\$(OBJ_EXT): $s/lmbc.c $s/lmbc_core.c $s/levmar.h $s/misc.h
-
-
-Levmar.xs: pdlperlfunc\$(OBJ_EXT)
-
-".
+    join('', map "$s/$_\$(OBJ_EXT): $s/$_.c $s/${_}_core.c $s/levmar.h $s/misc.h\n", @lm_base).
+    "\nLevmar\$(OBJ_EXT) Levmar.pm: pdlperlfunc.c\n".
     pdlpp_postamble($lmpackage)
 }
 
