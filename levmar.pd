@@ -1569,14 +1569,9 @@ pp_addpm(<<'===EOD===pm_code===two');
 	if ( chk_eq_dims($f,$p) < 0 ) {
 	    croak "p and FIX must have the same dimensions";
 	}
-	if ( not defined  $h->{UB} ) {
-	    $h->{UB} = ones($p);
-	    $h->{UB} *= $DBLMAX;
-	}
-	if (not defined  $h->{LB} ) {
-	    $h->{LB} = ones($p);
-	    $h->{LB} *= -$DBLMAX;
-	}
+	$h->{UB} = ones($p) * $DBLMAX if not defined $h->{UB};
+	$h->{LB} = ones($p) * -$DBLMAX if not defined $h->{LB};
+	$_ = topdl($_) for @$h{qw(UB LB)};
 	my $fi = PDL::Primitive::which($f == 1); # indices in p that we want to fix.
 	$h->{UB}->flat->index($fi) .= $p->flat->index($fi);
 	$h->{LB}->flat->index($fi) .= $p->flat->index($fi);

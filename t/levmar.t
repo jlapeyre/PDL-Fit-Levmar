@@ -377,13 +377,19 @@ $p = $ip->copy;
 $hout = levmar($p,$x,$t, FUNC => $func1, UB => [2.3, .5, 3 ], LB => [ 0,-.1, .5] );
 ok ( tapprox( $hout->{P}, $p_actual ),
      "UB , LB; Box constraints  ");
-prep();
 
+prep();
 $p = $ip->copy;
-$hout = levmar($p,$x,$t, FUNC => $func1, UB => [2.3, .5, 3 ], LB => [ 0,-.1, .5], 
+$hout = levmar($p,$x,$t, FUNC => $func1, UB => [2.3, .5, 3 ], LB => [ 0,-.1, .5],
    DERIVATIVE => 'numeric' );
 ok ( tapprox( $hout->{P}, $p_actual ),
      "UB , LB ; Box constraints, numeric derivative");
+
 prep();
+$p = $ip->copy;
+$hout = levmar($p,$x,$t, FIXB=> [1,0,1], FUNC => $func1, UB => [2.3, .5, 3 ], LB => [ 0,-.1, .5] );
+my $expected = pdl '[2.2 0.5 1.2]';
+ok ( tapprox( $hout->{P}, $expected ), "UB, LB; Box constraints with FIXB")
+  or diag "got=$hout->{P}\nexpected=$expected";
 
 done_testing;
