@@ -67,7 +67,7 @@ cpr "# Done compiling fit function.";
 # There is an interface for that, but I have not checked it yet.
 sub chkjac {
     my ($eps, $Type) = @_;
-    $eps = 1e-5 unless $eps;
+    $eps ||= 1e-5;
     my $n = 10;
     my $r = 5;
     my $t = sequence $Type, $n;
