@@ -26,7 +26,7 @@ sub dimst {
 sub deb  { print STDERR $_[0],"\n" }
 sub cpr  { print $_[0],"\n" }
 
-cpr "# Test implicit threading over lemvar()";
+cpr "# Test implicit threading over levmar()";
 cpr "# Compiling fit function...";
 
 # Need to use jacobian so fitting is more robust
