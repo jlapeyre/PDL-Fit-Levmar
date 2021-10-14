@@ -1134,7 +1134,7 @@ Need to put the description from the C code in here.
 =for ref
 
 Make a human readable report from the hash ref returned
-by lemvar().
+by levmar().
 
 =for usage
 
