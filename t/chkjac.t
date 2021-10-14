@@ -32,7 +32,7 @@ cpr "# Compiling fit function...";
 # Need to use jacobian so fitting is more robust
 my $Gf = '
        function
-       x = p0 * exp( -t*t * p1);
+       x = p0 * (FLOAT)exp(-t*t * p1);
        jacobian
        FLOAT ex, arg;
        loop
