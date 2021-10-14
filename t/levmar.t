@@ -371,15 +371,6 @@ print "# init p " , $p, "\n";
 $hout = levmar($p,$x,$t, FUNC => $func1, FIXB => [1,0,1]);
 ok ( tapprox( $hout->{P}, [2.2, 0.52755091, 1.2] ), "FIXB [1,0,1]");
 prep();
-
-}
-else {
-ok(1);
-ok(1);
-ok(1);
-ok(1);
-ok(1);
-ok(1);
 }
 
 $p = $ip->copy;
