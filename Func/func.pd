@@ -229,7 +229,7 @@ sub new {
       NOSO => undef,
       CSRC => undef,
       CTOP => undef,
-      DIR => tempdir( CLEANUP => 1 ), # where the .so is built
+      DIR => tempdir( CLEANUP => !$opts->{NOCLEAN} ), # where the .so is built
       TESTSYNTAX => undef,
       LIBHANDLE => undef,
       FVERBOSE => 0,
