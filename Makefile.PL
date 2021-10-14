@@ -76,20 +76,27 @@ $hash{TEST_REQUIRES} = {
     'Test::More' => '0.88',
 };
 
-{
-# This should be done more elegantly
-    my $s =  $levmarsrc;
-
 sub MY::postamble {
+    my $s =  $levmarsrc;
     join('', map "$s/$_\$(OBJ_EXT): $s/$_.c $s/${_}_core.c $s/levmar.h $s/misc.h\n", @lm_base).
     "\nLevmar\$(OBJ_EXT) Levmar.pm: pdlperlfunc.c\n".
     pdlpp_postamble($lmpackage)
 }
 
-}
-
 $hash{AUTHOR} = 'John Lapeyre <jlapeyre cpan.org>';
 $hash{ABSTRACT} = 'Nonlinear fit and optimization routines for pdl';
+$hash{META_MERGE} = {
+  "meta-spec" => { version => 2 },
+  resources => {
+    bugtracker  => {web=>'https://github.com/jlapeyre/PDL-Fit-Levmar/issues'},
+    repository  => {
+       url => 'git://github.com/jlapeyre/PDL-Fit-Levmar.git',
+       type => 'git',
+       web => 'https://github.com/jlapeyre/PDL-Fit-Levmar',
+    },
+    x_IRC => 'irc://irc.perl.org/#pdl',
+  },
+};
 
 WriteMakefile( %hash );
 
