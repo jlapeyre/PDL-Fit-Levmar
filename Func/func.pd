@@ -1007,9 +1007,6 @@ pp_def ( '_callj1' ,
 # I don't know how portable this is. It relies on ints and pointers being the
 # same size.
 
-pp_addhdr('
-void   _close_shared_object_file( void ** lib_handle, int * rval, char * error_message, int nchar );
-');
 pp_addxs ( '', '
 
 MODULE = PDL::Fit::Levmar::Func PACKAGE = PDL::Fit::Levmar::Func
