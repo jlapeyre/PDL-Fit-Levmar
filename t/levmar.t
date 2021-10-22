@@ -24,7 +24,7 @@ sub tapprox {
 sub make_gaussian {
     my ($N,$parg,$pfac,$noise) = @_; 
     my ($p0, $p1, $p2) = list($parg);  # three model parameters
-    my $t =(sequence($N)-$N/2)/$N; # ordinates
+    my $t = zeroes($N)->xlinvals(-0.5,0.5-1/$N);
     my $x = $p0 *  exp(-($t-$p1)*($t-$p1)*$p2); # co-ordinates
     my $p_actual = $parg->copy;
     my $p = $parg->copy;

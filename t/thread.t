@@ -84,10 +84,7 @@ cpr "# Done compiling fit function.";
 sub thread1 {
     my ($Type) = @_;
     my $n = 10000;
-    my $r = 10;
-    my $t = sequence $Type, $n;
-    $t *= $r / $n;
-    $t += -$r/2;
+    my $t = zeroes($Type, $n)->xlinvals(map pdl($Type, $_), -5,4.999);
     my $x = zeroes($Type,$n,4);
     my $params =  [ [3,.2], [ 28, .1] , [2,.01], [3,.3] ];
     my $i = 0;
@@ -118,9 +115,7 @@ sub thread1 {
 sub thread2 {
     my ($Type) = @_;
     my $n = 10000;
-    my $t = sequence $Type, $n;
-    $t *= 10 / $n;
-    $t += -10/2;
+    my $t = zeroes($Type, $n)->xlinvals(map pdl($Type, $_), -5,4.999);
     my $x = zeroes($Type, $n);
     my $params =   [[0,3,.2]]; # only 1 dimension
     map {  $x(:,$_->[0])  .= $_->[1] * exp(-$t*$t * $_->[2]  ) }  @$params;
@@ -139,10 +134,7 @@ sub thread2 {
 sub thread3 {
     my ($Type) = @_;
     my $n = 10000;
-    my $r = 10;
-    my $t = sequence $Type, $n;
-    $t *= $r / $n;
-    $t += -$r/2;
+    my $t = zeroes($Type, $n)->xlinvals(map pdl($Type, $_), -5,4.999);
     my $params =  [ [0,3,.2], [1, 2, .1] ];
     my $x = zeroes($Type, $n,scalar(@$params));
     my $res =  pdl $Type, $params;
@@ -158,10 +150,7 @@ sub thread3 {
 sub thread4 {
     my ($Type) = @_;
     my $n = 1000;
-    my $r = 10;
-    my $t = sequence $Type, $n;
-    $t *= $r / $n;
-    $t += -$r/2;
+    my $t = zeroes($Type, $n)->xlinvals(map pdl($Type, $_), -5,4.999);
 # Put any number of triples of actual parameters here.
     my $params =  [ [0,3,.2], [1, 28, .1] , [2,2,.01], [3,3,.3] ];
     my $nx = scalar(@$params);
@@ -202,10 +191,7 @@ sub thread4 {
 sub thread5 {
     my ($Type) = @_;
     my $n = 10000;
-    my $r = 10;
-    my $t = sequence $Type, $n;
-    $t *= $r / $n;
-    $t += -$r/2;
+    my $t = zeroes($Type, $n)->xlinvals(map pdl($Type, $_), -5,4.999);
     my $x = zeroes($Type, $n,4);
     my $params =  [ [3,.2], [ 28, .1] , [2,.01], [3,.3] ];
     my $i = 0;
@@ -230,7 +216,7 @@ sub thread5 {
 sub thread6 {
     my ($Type) = @_;
     my $n = 1000;
-    my $t = 10 * (sequence($n)/$n -1/2);
+    my $t = zeroes($Type, $n)->xlinvals(map pdl($Type, $_), -5,4.999);
 # Put any number of pairs of actual parameters here.
     my $params =  [ [500,.01], [3, .1] , [2,.01], [50,.3] ];
     my $nx = scalar(@$params);

@@ -23,7 +23,7 @@ sub check_type {
     my ($Type, @d) = @_;
     my $i=0;
     foreach ( @d )  {
-	die "$i: not $Type" unless $Type == $_->type;
+	die "$i: not $Type, ", $_->info unless $Type == $_->type;
 	$i++;
     }   
 }
@@ -67,9 +67,7 @@ cpr "# Done compiling fit function.";
 sub keep_work_space {
     my ($Type) = @_;
     my $n = 100;
-    my $A = 10;
-    my $t = sequence($Type, $n);
-    $t *= $A/$n; $t -= $A/2;
+    my $t = zeroes($Type, $n)->xlinvals(map pdl($Type, $_), -5,4.9);
     my $x = zeroes($Type,$n);
     my $p = pdl($Type, 1,2);
     my $ip = pdl($Type, 3,4);

@@ -42,13 +42,10 @@ sub fit_gauss2d {
     my ($Type) = @_;
     my $n = 101;
     my $scale = 3;
-    my $t = sequence($Type,$n);
-    $t *= $scale/($n-1);
-    $t  -= $scale/2;
-    my $x = zeroes($Type,$n,$n);
+    my $t = zeroes($Type, $n)->xlinvals(map pdl($Type, $_), -1.5,1.5);
+    my $xlin = zeroes($Type,$n*$n);
     my $p = pdl $Type, [ .5,2,3];
     my $p1 = pdl $Type, [ 1,1,1];
-    my $xlin = $x->clump(-1);
     gauss2d( $p, $xlin, $t->copy);
     my $h = levmar($p1,$xlin,$t,\&gauss2d);
     ok ( (tapprox($p,$h->{P}) and not  tapprox($p1,$h->{P}) ) , "-- 2-d gaussian");

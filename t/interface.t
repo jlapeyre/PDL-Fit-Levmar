@@ -30,7 +30,7 @@ sub make_gaussian_data {
     my $n = 100;
     my $p = pdl (1,1);
     my ($p0,$p1) = list $p;
-    my $t = 10 * (sequence($n)/$n -1/2);
+    my $t = zeroes($n)->xlinvals(-5,4.9);
     my $x = $p0*exp(-$t*$t*$p1);
     return ($p,$x,$t)
 }
