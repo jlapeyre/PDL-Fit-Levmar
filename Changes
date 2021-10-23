@@ -1,3 +1,5 @@
+- change t/thread.t input value from 28 to 27 to avoid levmar-2.6 giving "singular matrix" failure
+
 0.0101 2021-10-14
 - fix for PDL >2.057
 - build fixes
