@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = '0.0102';
+our $VERSION = '0.0103';
 pp_setversion( $VERSION );
 
 pp_bless('PDL::Fit::Levmar::Func');  # make the functions generated go into our namespace     
