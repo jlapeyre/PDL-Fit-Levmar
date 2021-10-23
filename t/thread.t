@@ -85,8 +85,8 @@ sub thread1 {
     my ($Type) = @_;
     my $n = 10000;
     my $t = zeroes($Type, $n)->xlinvals(map pdl($Type, $_), -5,4.999);
-    my $x = zeroes($Type,$n,4);
     my $params =  [ [3,.2], [ 28, .1] , [2,.01], [3,.3] ];
+    my $x = zeroes($Type,$n,scalar @$params);
     my $i = 0;
     map {  $x(:,$i++)  .= $_->[0] * exp(-$t*$t * $_->[1]  ) }  @$params;
     my $p = pdl $Type, [ 5, 1]; # starting guess 
