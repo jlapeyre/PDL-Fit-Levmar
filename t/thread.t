@@ -95,7 +95,8 @@ sub thread1 {
     my $h = levmar(  $p, $x, $t, $Gh, @g, WORK => $w, DERIVATIVE => 'numeric');
     check_type($Type, $h->{INFO});
     ok(tapprox($h->{P}, pdl($Type, $params)), "Thread x, 1 thread dim ($Type)")
-        or diag "got=", $h->{P}, "expected=", pdl($Type, $params);
+        or diag "got=", $h->{P}, "expected=", pdl($Type, $params),
+            "report=", levmar_report($h);
     my $m = 2;
     my $s = 4*$n+4*$m + $n*$m + $m*$m;
     ok($s == $w->nelem, " Workspace, numeric,  allocated correctly in pp_def");
