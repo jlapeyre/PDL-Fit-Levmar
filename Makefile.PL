@@ -67,7 +67,7 @@ $hash{PREREQ_PM} = {
 };
 
 $hash{CONFIGURE_REQUIRES} = {
-    'PDL' => '2.4.11',
+    'PDL' => '2.057', # allowed empty in $T()
     'ExtUtils::MakeMaker' => 0,
 };
 
