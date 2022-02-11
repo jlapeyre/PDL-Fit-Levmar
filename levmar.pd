@@ -1592,12 +1592,10 @@ pp_addpm(<<'===EOD===pm_code===two');
 #    print "func $pdl_levmar_func\n";
 #    my $nargs = @$arg_list;
 #    print "Got $nargs args\n";
-    my @jacobians = ();
-    if ( $h->{DERIVATIVE} eq 'analytic' ) {
-      @jacobians = ( $jacn, $sjacn );
-    }
     &$pdl_levmar_func($p,$x,$t,@$arg_list,$iopts,$opts,$work,
-       $covar, $ret, $pout, $info, $funcn, $sfuncn, @jacobians, $DFP, $want_covar);
+       $covar, $ret, $pout, $info, $funcn, $sfuncn,
+       ($h->{DERIVATIVE} eq 'analytic' ? ( $jacn, $sjacn ) : ()),
+       $DFP, $want_covar);
 
     DFP_free($DFP) if $DFP;
 
