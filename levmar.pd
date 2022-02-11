@@ -462,7 +462,7 @@ threaded. That is, if the array FIX has more than one
 dimension you will not get correct results. Also, PDL will
 not add dimension correctly if you pass additional
 dimensions in other quantities.  Threading will work if you
-use linear contstraints directly via C<A> and C<b>.
+use linear constraints directly via C<A> and C<b>.
 
 =item FIXB
 
@@ -1447,7 +1447,7 @@ pp_addpm(<<'===EOD===pm_code===two');
     $work = PDL->null unless defined $work;
     $wghts = PDL->null unless defined $wghts;
 
-# Input pdl contstructed in levmar
+# Input pdl constructed in levmar
 # Currently, the elements are set from a hash; no convenient way to thread.
 # As an alternative, we could send them as a pdl, then we could thread them
     my $opts;
@@ -1537,7 +1537,6 @@ pp_addpm(<<'===EOD===pm_code===two');
     }
     my $iopts = pdl(long, $h->{MAXITS});
 
-  
 ########### FIX holds some parameters constant using linear constraints.
 # It is a special case of more general constraints using A and b.
 # Notice that this fails if FIX has more than one dimension (ie, you are

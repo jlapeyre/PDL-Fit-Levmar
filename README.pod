@@ -453,7 +453,7 @@ threaded. That is, if the array FIX has more than one
 dimension you will not get correct results. Also, PDL will
 not add dimension correctly if you pass additional
 dimensions in other quantities.  Threading will work if you
-use linear contstraints directly via C<A> and C<b>.
+use linear constraints directly via C<A> and C<b>.
 
 =item FIXB
 
