@@ -1404,8 +1404,6 @@ pp_addpm(<<'===EOD===pm_code===two');
     $x = $h->{X} unless not defined $h->{X} and defined $p;
     $t = $h->{T} unless not defined $h->{T} and defined $p;
 
-    $t = PDL->null unless defined $t; # sometimes $t not needed
-
     if ( not defined $p ) { # This looks like some kind of error thing that was
                             # not implemented consistently
 	my $st = "No parameter (P) pdl";
@@ -1422,6 +1420,7 @@ pp_addpm(<<'===EOD===pm_code===two');
 # Treat input and output piddles for pp_defs
     $x = topdl($x); # in case they are refs to arrays
     $p = topdl($p);
+    $t = PDL->zeroes($p->type, 1) unless defined $t; # sometimes $t not needed
     $t = topdl($t);
 ###  output variables
     my $pout;
