@@ -72,8 +72,7 @@ sub keep_work_space {
     my $p = pdl($Type, 1,2);
     my $ip = pdl($Type, 3,4);
     $x .= $p((0)) * exp(-$t*$t * $p((1)) );
-    my $work = PDL->null;
-    my $h = levmar($ip,$x,$t,$Gh,@g, WORK =>$work);
+    my $h = levmar($ip,$x,$t,$Gh,@g);
     ok(tapprox($h->{P},$p));
     check_type($Type, $h->{COVAR});
 }

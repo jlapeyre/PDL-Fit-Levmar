@@ -1,4 +1,5 @@
 - fix for PDL 2.064+ xvals being double+ (#7) - thanks @andk for report
+- stop allowing passing in the temporary "work" variables
 
 0.0103 2021-10-23
 - even smaller value as 27 still fails on Windows

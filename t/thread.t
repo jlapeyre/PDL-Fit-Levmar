@@ -91,22 +91,16 @@ sub thread1 {
     map {  $x(:,$i++)  .= $_->[0] * exp(-$t*$t * $_->[1]  ) }  @$params;
     my $p = pdl $Type, [ 5, 1]; # starting guess 
     check_type($Type, $p,$x,$t);
-    my $w = PDL->null;
-    my $h = levmar(  $p, $x, $t, $Gh, @g, WORK => $w, DERIVATIVE => 'numeric');
+    my $h = levmar(  $p, $x, $t, $Gh, @g, DERIVATIVE => 'numeric');
     check_type($Type, $h->{INFO});
     ok(tapprox($h->{P}, pdl($Type, $params)), "Thread x, 1 thread dim ($Type)")
         or diag "got=", $h->{P}, "expected=", pdl($Type, $params),
             "report=", levmar_report($h);
     my $m = 2;
     my $s = 4*$n+4*$m + $n*$m + $m*$m;
-    ok($s == $w->nelem, " Workspace, numeric,  allocated correctly in pp_def");
-    $h = levmar(  $p, $x, $t, $Gh, @g, WORK => $w);
-    ok($s == $w->nelem, " Workspace from numeric accepted when analytic");
-    $w = PDL->null;
-    $h = levmar(  $p, $x, $t, $Gh, @g, WORK => $w);
+    $h = levmar(  $p, $x, $t, $Gh, @g);
+    $h = levmar(  $p, $x, $t, $Gh, @g);
     $s = 2*$n+4*$m + $n*$m + $m*$m;
-    ok($s == $w->nelem, " Workspace, analytic, allocated correctly in pp_def");
-    check_type($Type, $w);
 }
 
 # Change the following routines to use map the same way
