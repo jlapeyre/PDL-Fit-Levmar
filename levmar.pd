@@ -1447,10 +1447,6 @@ pp_addpm(<<'===EOD===pm_code===two');
     $work = PDL->null unless defined $work;
     $wghts = PDL->null unless defined $wghts;
 
-# Input pdl constructed in levmar
-# Currently, the elements are set from a hash; no convenient way to thread.
-# As an alternative, we could send them as a pdl, then we could thread them
-    my $opts;
 # Careful about $m, it is used in construcing $A below (with fix). But this is
 # not correct when using implicit threading. Except threading may still be working.
 # Need to look into that.
@@ -1528,13 +1524,10 @@ pp_addpm(<<'===EOD===pm_code===two');
     }
 
 # liblevmar uses 5 option for analytic and 6 for numeric. 
+    my $opts = pdl($p->type, @$h{qw(MU EPS1 EPS2 EPS3)},
+      $h->{DERIVATIVE} eq 'analytic' ? () : $h->{DELTA}
+    );
 # We make an integer option array as well, for passing stuff , like maxits.
-    if ($h->{DERIVATIVE} eq 'analytic') {
-	$opts = pdl ($p->type, $h->{MU},$h->{EPS1},$h->{EPS2},$h->{EPS3});
-    }
-    else {
-	$opts = pdl ($p->type,$h->{MU},$h->{EPS1},$h->{EPS2},$h->{EPS3},$h->{DELTA});
-    }
     my $iopts = pdl(long, $h->{MAXITS});
 
 ########### FIX holds some parameters constant using linear constraints.
