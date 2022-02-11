@@ -41,7 +41,7 @@ sub check_type {
     my ($Type, @d) = @_;
     my $i=0;
     foreach ( @d )  {
-	die "$i: not $Type" unless $Type == $_->type;
+	is $_->type, $Type, "type of var $i ".$_->info;
 	$i++;
     }   
 }
@@ -78,7 +78,7 @@ sub rosenbrock {
        $x .= ( (1.0-$p0)**2 +  $ROSD*($p1-$p0*$p0)**2 );
    };
 
-    my $p =  pdl  $Type, [-1.2, 1];
+    my $p = pdl $Type, [-1.2, 1];
     my $x = pdl $Type, [0,0];
     my $t = pdl $Type, [0,0];
     
