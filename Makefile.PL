@@ -12,8 +12,6 @@ our $HAVE_LAPACK = 0;
 # Choose this to build *with* lapack
 # our $HAVE_LAPACK = 1;
 
-# Developer must edit VERSION in both Levmar.pm and Func.pm
-
 open my $fh, '>','have_lapack' or die "Can't open config file have_lapack for write.";
 print $fh "\$HAVE_LAPACK=$HAVE_LAPACK;\n1\n";
 close($fh);
@@ -23,7 +21,6 @@ my $lmpackage = ["levmar.pd", 'Levmar', 'PDL::Fit::Levmar'];
 
 my %hash = pdlpp_stdargs($lmpackage);
 
-#$hash{VERSION}  = $VERSION;
 $hash{VERSION_FROM} = 'levmar.pd';
 $hash{INC} .= " -I$levmarsrc";
 
