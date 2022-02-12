@@ -49,12 +49,10 @@ else {
 $hash{DIR} = [ 'Func' ];
 
 my @lm_base = qw(lm Axb misc lmlec lmblec lmbleic lmbc);
-foreach my $f (@lm_base) {
-    $hash{OBJECT} .= " $levmarsrc/$f\$(OBJ_EXT) ";
-}
+$hash{OBJECT} .= join ' ', '', map "$levmarsrc/$_\$(OBJ_EXT)", @lm_base;
 
 $hash{clean}{FILES} .= " " . $hash{OBJECT} .
-		" *.o *.so have_lapack Levmar.html have_lapack ";
+		" *.o *.so Levmar.html have_lapack ";
 
 $hash{OPTIMIZE} = "-O3";  # from levmar src Makefile minus clang-incompat unroll-loops
 
