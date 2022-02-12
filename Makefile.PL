@@ -49,7 +49,7 @@ else {
 $hash{DIR} = [ 'Func' ];
 
 my @lm_base = qw(lm Axb misc lmlec lmblec lmbleic lmbc);
-$hash{OBJECT} .= join ' ', '', map "$levmarsrc/$_\$(OBJ_EXT)", @lm_base;
+$hash{OBJECT} .= join ' ', '', 'pdlperlfunc$(OBJ_EXT)', map "$levmarsrc/$_\$(OBJ_EXT)", @lm_base;
 
 $hash{clean}{FILES} .= " " . $hash{OBJECT} .
 		" *.o *.so Levmar.html have_lapack ";
@@ -73,7 +73,7 @@ $hash{TEST_REQUIRES} = {
 sub MY::postamble {
     my $s =  $levmarsrc;
     join('', map "$s/$_\$(OBJ_EXT): $s/$_.c $s/${_}_core.c $s/levmar.h $s/misc.h\n", @lm_base).
-    "\nLevmar\$(OBJ_EXT) Levmar.pm: pdlperlfunc.c\n".
+    "\n$hash{OBJECT} : pdlperlfunc.h\n".
     pdlpp_postamble($lmpackage)
 }
 

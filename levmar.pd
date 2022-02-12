@@ -1155,7 +1155,7 @@ pp_addhdr('
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
-#include "pdlperlfunc.c"
+#include "pdlperlfunc.h"
 #include "levmar.h"
 ');
 
