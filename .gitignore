@@ -16,3 +16,4 @@ Func/Func.xs
 Func/pm_to_blib
 Levmar.bs
 pm_to_blib
+pp-*.c

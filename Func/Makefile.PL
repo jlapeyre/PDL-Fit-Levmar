@@ -3,7 +3,7 @@ use warnings;
 use PDL::Core::Dev;
 use ExtUtils::MakeMaker;
 
-my $fpackage = [qw(func.pd Func PDL::Fit::Levmar::Func)];
+my $fpackage = [qw(func.pd Func PDL::Fit::Levmar::Func), undef, 1];
 my %hash = pdlpp_stdargs($fpackage);
 $hash{OBJECT} .= '  getsymbol$(OBJ_EXT)  ';
 $hash{LIBS}[0] .= ' -lm';

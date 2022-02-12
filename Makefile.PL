@@ -17,7 +17,7 @@ print $fh "\$HAVE_LAPACK=$HAVE_LAPACK;\n1\n";
 close($fh);
 
 my $levmarsrc = "./levmar-2.6";
-my $lmpackage = ["levmar.pd", 'Levmar', 'PDL::Fit::Levmar'];
+my $lmpackage = ["levmar.pd", 'Levmar', 'PDL::Fit::Levmar', undef, 1];
 
 my %hash = pdlpp_stdargs($lmpackage);
 
