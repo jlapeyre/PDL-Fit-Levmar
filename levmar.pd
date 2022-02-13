@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = '0.0104';
+our $VERSION = '0.0105';
 pp_setversion( $VERSION );
 
 
