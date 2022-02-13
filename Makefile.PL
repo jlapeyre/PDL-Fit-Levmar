@@ -4,7 +4,6 @@ use warnings;
 use PDL::Core::Dev;
 use ExtUtils::MakeMaker;
 use Carp;
-PDL::Core::Dev->import();
 
 # Choose this to build *without* lapack
 our $HAVE_LAPACK = 0;
@@ -57,12 +56,12 @@ $hash{clean}{FILES} .= " " . $hash{OBJECT} .
 $hash{OPTIMIZE} = "-O3";  # from levmar src Makefile minus clang-incompat unroll-loops
 
 $hash{PREREQ_PM} = { 
-    'PDL' => 0,
+    'PDL' => '2.074',
     'File::Temp' => 0,
 };
 
 $hash{CONFIGURE_REQUIRES} = {
-    'PDL' => '2.057', # allowed empty in $T()
+    'PDL' => '2.074', # definitely got the multi-C changes
     'ExtUtils::MakeMaker' => 0,
 };
 
