@@ -1958,11 +1958,11 @@ sub write_pp_defs {
             my $funcname = '';
             $funcname = $arg_anal->{LEVMAR_FUNCTION_NAME} unless $arg_anal->{LEVMAR_FUNCTION_NAME} eq 'none';
             $h->{CALL} = $funcname . '_' . $h->{CALL} unless $arg_anal->{LEVMAR_FUNCTION_NAME} eq 'none';
-            if ($arg_anal->{LEVMAR_FUNCTION_NAME} eq 'blec' ) {
+            if ($arg_anal->{LEVMAR_FUNCTION_NAME} eq 'blec') {
                  $h->{SIG} .= 'wghts(m); ';
                  $h->{ARG2} .= '$P(wghts), ';    
             }
-            $h->{ARG2} .= 'NULL, ' if @{$arg_anal->{ARG_COMB}}; # as of levmar-2.6, a dscl arg
+            $h->{ARG2} .= 'NULL, ' if $arg_anal->{LEVMAR_FUNCTION_NAME} eq 'bc' and @{$arg_anal->{ARG_COMB}}; # as of levmar-2.6, a dscl arg
             my $pdl_func_name;
             $pdl_func_name = $arg_anal->{PDL_FUNC_NAME_DER} if $der eq 'analytic';
             $pdl_func_name = $arg_anal->{PDL_FUNC_NAME_DIFF} if $der eq 'numeric';
