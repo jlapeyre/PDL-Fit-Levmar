@@ -1,3 +1,5 @@
+- fix tests' incorrect usage of xlinvals
+
 0.0107 2024-12-20
 - update test data to match types more carefully (https://github.com/PDLPorters/pdl/issues/511)
 

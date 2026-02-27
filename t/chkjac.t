@@ -69,7 +69,7 @@ sub chkjac {
     my ($eps, $Type) = @_;
     $eps ||= 1e-5;
     my $n = 10;
-    my $t = zeroes($Type, $n)->xlinvals(map pdl($Type, $_), -2.5,2);
+    my $t = zeroes($Type, $n)->xlinvals(-2.5,2);
     my $p = pdl $Type, [2.1,1.1];
     my $err = levmar_chkjac($Gh,$p,$t);
     my $fref = \&gauss;

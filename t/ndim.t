@@ -42,7 +42,7 @@ sub fit_gauss2d {
     my ($Type) = @_;
     my $n = 101;
     my $scale = 3;
-    my $t = zeroes($Type, $n)->xlinvals(map pdl($Type, $_), -1.5,1.5);
+    my $t = zeroes($Type, $n)->xlinvals(-1.5,1.5);
     my $xlin = zeroes($Type,$n*$n);
     my $p = pdl $Type, [ .5,2,3];
     my $p1 = pdl $Type, [ 1,1,1];
