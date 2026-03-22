@@ -14,7 +14,7 @@ PDL::Fit::Levmar - Levenberg-Marquardt fit/optimization routines
 Levenberg-Marquardt routines for least-squares fit to
 functions non-linear in fit parameters.
 
-This module provides a L<PDL> ( L<PDL::PDL> ) interface to the non-linear fitting
+This module provides a L<PDL> interface to the non-linear fitting
 library levmar 2.5 (written in C). Levmar is
 L<thread|/example--6> aware (in the L<PDL> sense), provides support for analytic
 or finite difference derivatives (in case no analytic
