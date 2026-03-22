@@ -2,6 +2,7 @@ Func/Func.bs
 Func/Func.c
 Func/Func.pm
 Func/Func.xs
+Func/Makefile\.old
 Func/MYMETA.json
 Func/MYMETA.yml
 have_lapack
