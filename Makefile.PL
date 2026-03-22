@@ -109,17 +109,17 @@ sub c_o {
 # purely to generate a README.pod for the github front page
 my $POD_header = <<EOF;
 
-=head1 OVERVIEW
+X=head1 OVERVIEW
 
-This module is available on CPAN
+XThis module is available on CPAN
 
-=cut
+X=cut
 
 EOF
 
-if(exists $ARGV[0] && $ARGV[0] eq 'README.pod')
-{
+if ($ARGV[0] && $ARGV[0] eq 'README.pod') {
   open README, '>README.pod'              or die "Couldn't open README.pod";
+  $POD_header =~ s#^X##gm;
   print README $POD_header;
 
   foreach my $mod  ('Levmar.pm', 'Func/Func.pm') {
@@ -133,5 +133,3 @@ if(exists $ARGV[0] && $ARGV[0] eq 'README.pod')
   }
   close(README);
 }
-
-
