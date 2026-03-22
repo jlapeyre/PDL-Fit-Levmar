@@ -25,7 +25,7 @@ functions non-linear in fit parameters.
 
 This module provides a L<PDL> interface to the non-linear fitting
 library levmar 2.6 (written in C). Levmar is
-L<thread|/example--6> aware (in the L<PDL> sense), provides support for analytic
+L<broadcast|/example--6> aware, provides support for analytic
 or finite difference derivatives (in case no analytic
 derivatives are supplied), L<linear|/A> and/or L<box|/UB>
 and/or L<inequality|/C>
@@ -275,7 +275,7 @@ translated by C<lpp> to d[q+r*m], which is the index into a
 
 =item example--6
 
-Here is an example that uses implicit threading. We create data
+Here is an example that uses implicit broadcasting. We create data
 from a gaussian function with four different sets of parameters
 and fit it all in one function call.
 
@@ -416,7 +416,7 @@ any of the following, which are auto-detected.
 
 If you are fitting a lot of data by doing many iterations over
 a loop of perl code, it is by far most efficient to create a Func
-object from C or lpp code and pass it to levmar. (Implicit threading
+object from C or lpp code and pass it to levmar. (Implicit broadcasting
 does not recompile code in any case.)
 
 You can also pass pure C code via the option CSRC.
@@ -458,7 +458,7 @@ parameters at their input values and letting the free
 parameters vary. This is implemented by using the linear
 constraint option described below. Each element must be
 either one or zero. This option currently cannot be
-threaded. That is, if the array FIX has more than one
+broadcasted. That is, if the array FIX has more than one
 dimension you will not get correct results. Also, PDL will
 not add dimension correctly if you pass additional
 dimensions in other quantities.  Threading will work if you
@@ -1098,9 +1098,9 @@ by levmar().
 =head1 BUGS
 
 With the levmar-2.6 code: Passing workspace currently does not work with
-linear inequality constraint. Some of the PDL threading no long works
+linear inequality constraint. Some of the PDL broadcasting no long works
 correctly. These are noted in the tests in t/thread.t. It is not clear
-if it is a threading issue or the fitting has changed.
+if it is a broadcasting issue or the fitting has changed.
 
  
 =cut
@@ -1198,7 +1198,7 @@ sub levmar_report {
 sub make_report {
     my ($p,$covar,$info) = @_;
     my @ninf = list($info);
-#    for(my $i=0;$i<9; $i++) { # Tried to get threading to work, but no!
+#    for(my $i=0;$i<9; $i++) { # Tried to get broadcasting to work, but no!
 #	$ninf[$i] = $info(($i));
 #    } 
     $ninf[6] = 
@@ -1393,7 +1393,7 @@ pp_addpm(<<'===EOD===pm_code===two');
     $wghts = PDL->null unless defined $wghts;
 
 # Careful about $m, it is used in construcing $A below (with fix). But this is
-# not correct when using implicit threading. Except threading may still be working.
+# not correct when using implicit broadcasting. Except broadcasting may still be working.
 # Need to look into that.
     my $m = $p->nelem;
 
@@ -1478,7 +1478,7 @@ pp_addpm(<<'===EOD===pm_code===two');
 ########### FIX holds some parameters constant using linear constraints.
 # It is a special case of more general constraints using A and b.
 # Notice that this fails if FIX has more than one dimension (ie, you are
-# threading. FIXB does the same but using box constraints.
+# broadcasting. FIXB does the same but using box constraints.
 
     if (defined $h->{FIX} ) { 
 	my $ip =  topdl( $h->{FIX}); # take array ref or pdl
@@ -1729,16 +1729,16 @@ sub levmar_chkjac {
   * 3 (bc, lec, no constraint). There are 6 pp_defs. pp
   takes care of the float , double code itself (with some
   macros) You can't nest pp macros, so I use DUMI below.
-  Note that I put a conditional in the thread loop. Not a
-  big deal, I think, because the threadloop is calling a big
+  Note that I put a conditional in the broadcast loop. Not a
+  big deal, I think, because the broadcastloop is calling a big
   routine with lots of conditionals and lots of calls to
   other similar routines.
 
   I pass pdl of type long iopts for some
   parameters. Currently only maxits is there. I suppose I
   could also put want_covar in there, but now its an other
-  parameter. Whatever is in iopts can be threaded. I suppose
-  someone might want to thread whether to compute
+  parameter. Whatever is in iopts can be broadcasted. I suppose
+  someone might want to broadcast whether to compute
   covariance.
 
 =end comment
@@ -1991,7 +1991,7 @@ sub write_pp_defs {
                      DFP *dat = (void *) \$COMP(indat);
                      DFP_check( &dat, PDL_\$TFD(F,D), \$SIZE(m), \$SIZE(n),
 		                      \$SIZE(nt), \$P(t) );
-                     threadloop %{
+                     broadcastloop %{
                          loop(m) %{
                             \$pout() = \$p();
                          %}

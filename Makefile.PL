@@ -56,12 +56,12 @@ $hash{clean}{FILES} .= " " . $hash{OBJECT} .
 $hash{OPTIMIZE} = "-O3";  # from levmar src Makefile minus clang-incompat unroll-loops
 
 $hash{PREREQ_PM} = { 
-    'PDL' => '2.074',
+    'PDL' => '2.075',
     'File::Temp' => 0,
 };
 
 $hash{CONFIGURE_REQUIRES} = {
-    'PDL' => '2.074', # definitely got the multi-C changes
+    'PDL' => '2.075', # broadcastloop
     'ExtUtils::MakeMaker' => 0,
 };
 

@@ -16,7 +16,7 @@ functions non-linear in fit parameters.
 
 This module provides a L<PDL> interface to the non-linear fitting
 library levmar 2.6 (written in C). Levmar is
-L<thread|/example--6> aware (in the L<PDL> sense), provides support for analytic
+L<broadcast|/example--6> aware, provides support for analytic
 or finite difference derivatives (in case no analytic
 derivatives are supplied), L<linear|/A> and/or L<box|/UB>
 and/or L<inequality|/C>
@@ -262,7 +262,7 @@ translated by C<lpp> to d[q+r*m], which is the index into a
 
 =item example--6
 
-Here is an example that uses implicit threading. We create data
+Here is an example that uses implicit broadcasting. We create data
 from a gaussian function with four different sets of parameters
 and fit it all in one function call.
 
@@ -401,7 +401,7 @@ any of the following, which are auto-detected.
 
 If you are fitting a lot of data by doing many iterations over
 a loop of perl code, it is by far most efficient to create a Func
-object from C or lpp code and pass it to levmar. (Implicit threading
+object from C or lpp code and pass it to levmar. (Implicit broadcasting
 does not recompile code in any case.)
 
 You can also pass pure C code via the option CSRC.
@@ -443,7 +443,7 @@ parameters at their input values and letting the free
 parameters vary. This is implemented by using the linear
 constraint option described below. Each element must be
 either one or zero. This option currently cannot be
-threaded. That is, if the array FIX has more than one
+broadcasted. That is, if the array FIX has more than one
 dimension you will not get correct results. Also, PDL will
 not add dimension correctly if you pass additional
 dimensions in other quantities.  Threading will work if you
@@ -1057,9 +1057,9 @@ by levmar().
 =head1 BUGS
 
 With the levmar-2.6 code: Passing workspace currently does not work with
-linear inequality constraint. Some of the PDL threading no long works
+linear inequality constraint. Some of the PDL broadcasting no long works
 correctly. These are noted in the tests in t/thread.t. It is not clear
-if it is a threading issue or the fitting has changed.
+if it is a broadcasting issue or the fitting has changed.
 
  
 =cut
