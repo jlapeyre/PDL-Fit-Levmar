@@ -305,15 +305,15 @@ is the fit function.
 We would prefer a function that maps t(n,n) --> x(n,n) (with
 p viewed as parameters.) But the levmar library expects one
 dimensional x and t. So we design C<gauss2d> to take
-piddles with these dimensions: C<p(3)>, C<xin(n*n)>,
+ndarrays with these dimensions: C<p(3)>, C<xin(n*n)>,
 C<t(n)>. For this example, we assume that both the co-ordinate
 axes run over the same range, so we only need to pass n
-values for t. The piddles t1 and t2 are (virtual) copies of
+values for t. The ndarrays t1 and t2 are (virtual) copies of
 t with dummy dimensions inserted. Each represents
 co-ordinate values along each of the two axes at each point
 in the 2-d space, but independent of the position along the
 other axis.  For instance C<t1(i,j) == t(i)> and C<t1(i,j)
-== t(j)>. We assume that the piddle xin is a flattened
+== t(j)>. We assume that the ndarray xin is a flattened
 version of the ordinate data, so we split the dimensions in
 x. Then the entire bi-variate gaussian is calculated with
 one line that operates on 2-d matrices. Now we create some
@@ -335,7 +335,7 @@ Finally, we fit the data with an incorrect set of initial parameters,
    my $p1 = pdl  [ 1,1,1];  # not the parameters we used to make the data
    my $h = levmar($p1,$xlin,$t,\&gauss2d);
 
-At this point C<$h->{P}> refers to the output parameter piddle C<[0.5, 2, 3]>.
+At this point C<$h->{P}> refers to the output parameter ndarray C<[0.5, 2, 3]>.
 
 =back
 
@@ -359,7 +359,7 @@ levmar() is called like this
  or this:
  levmar($arg1, $arg2, ..., {OPT1=>$val1, OPT2=>$val2, ...});
 
-When calling levmar, the first 3 piddle arguments (or refs
+When calling levmar, the first 3 ndarray arguments (or refs
 to arrays), if present, are taken to be C<$p>,C<$x>, and C<$t>
 (parameters, ordinate data, and co-ordinate data) in that
 order. The first scalar value that can be interpreted as a
@@ -542,8 +542,8 @@ some problem. But unless the covariance matrix is very large,
 it probably won't help much. On the other hand it almost certainly
 won't make levmar() less efficient.
 
-Note that levmar returns a piddle representing the covariance in
-the output hash. This will be the the same piddle that you give
+Note that levmar returns an ndarray representing the covariance in
+the output hash. This will be the the same ndarray that you give
 as input via this option. So, if you do the following,
 
   my $covar = PDL->null
@@ -867,11 +867,11 @@ be defined in the C code; something that is currently not possible.
 
 This is how to use perl subroutines as fit functions... (see
 the examples for now, e.g. L<example 2|/example--2>.)  The
-fit function takes piddles $p,$x, and $t, with dimensions
+fit function takes ndarrays $p,$x, and $t, with dimensions
 m,n, and tn. (often tn ==n ).  These are references with
 storage already allocated (by the user and liblevmar). So
 you must use C<.=> when setting values. The jacobian takes
-piddles $p,$d, and $t, where $d, the piddle of derivatives
+ndarrays $p,$d, and $t, where $d, the ndarray of derivatives
 has dimensions (m,n). For example
 
  $f = sub myexp {
