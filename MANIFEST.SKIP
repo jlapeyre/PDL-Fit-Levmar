@@ -20,3 +20,4 @@ MYMETA\.
 pm_to_blib
 pp-.*\.c$
 \.o$
+^xt/
