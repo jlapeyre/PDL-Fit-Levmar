@@ -24,7 +24,7 @@ Levenberg-Marquardt routines for least-squares fit to
 functions non-linear in fit parameters.
 
 This module provides a L<PDL> interface to the non-linear fitting
-library levmar 2.5 (written in C). Levmar is
+library levmar 2.6 (written in C). Levmar is
 L<thread|/example--6> aware (in the L<PDL> sense), provides support for analytic
 or finite difference derivatives (in case no analytic
 derivatives are supplied), L<linear|/A> and/or L<box|/UB>
@@ -1097,7 +1097,7 @@ by levmar().
 
 =head1 BUGS
 
-With the levmar-2.5 code: Passing workspace currently does not work with
+With the levmar-2.6 code: Passing workspace currently does not work with
 linear inequality constraint. Some of the PDL threading no long works
 correctly. These are noted in the tests in t/thread.t. It is not clear
 if it is a threading issue or the fitting has changed.
